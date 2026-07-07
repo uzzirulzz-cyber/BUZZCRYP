@@ -364,8 +364,22 @@ function CreateCustomerForm({ onCreated }: { onCreated: () => void }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [invitationCode, setInvitationCode] = useState("PB-CORE001");
+  const [invitationCode, setInvitationCode] = useState("");
   const [saving, setSaving] = useState(false);
+  const [availableCodes, setAvailableCodes] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetch("/api/invitation-codes", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => {
+        const codes: string[] = (d.items || [])
+          .filter((c: any) => c.active && c.user?.accountStatus === "ACTIVE")
+          .map((c: any) => c.invitationCode);
+        setAvailableCodes(codes);
+        if (codes.length > 0 && !invitationCode) setInvitationCode(codes[0]);
+      })
+      .catch(() => {});
+  }, []);
 
   const submit = async () => {
     if (!name || !email || !password || !invitationCode) {
@@ -419,11 +433,11 @@ function CreateCustomerForm({ onCreated }: { onCreated: () => void }) {
           />
         </div>
         <div className="space-y-1.5">
-          <Label>Invitation code (assigns to Core)</Label>
+          <Label>Invitation code (assigns to Sub-Agent)</Label>
           <Select value={invitationCode} onValueChange={setInvitationCode}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectTrigger><SelectValue placeholder="Select invitation code" /></SelectTrigger>
             <SelectContent>
-              {["PB-CORE001", "PB-CORE002", "PB-CORE003", "PB-CORE004", "PB-CORE005"].map((c) => (
+              {availableCodes.map((c) => (
                 <SelectItem key={c} value={c}>{c}</SelectItem>
               ))}
             </SelectContent>

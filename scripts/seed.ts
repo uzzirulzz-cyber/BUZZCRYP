@@ -3,27 +3,35 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-const DEFAULT_CORES = [
-  { name: "Core 1", email: "core1@trade.com", invitationCode: "PB-CORE001" },
-  { name: "Core 2", email: "core2@trade.com", invitationCode: "PB-CORE002" },
-  { name: "Core 3", email: "core3@trade.com", invitationCode: "PB-CORE003" },
-  { name: "Core 4", email: "core4@trade.com", invitationCode: "PB-CORE004" },
-  { name: "Core 5", email: "core5@trade.com", invitationCode: "PB-CORE005" },
-];
+// 10 Sub-Agent accounts (role: CORE) — each owns one globally unique invitation code.
+const DEFAULT_CORES = Array.from({ length: 10 }, (_, i) => {
+  const n = String(i + 1).padStart(2, "0");
+  return {
+    name: `Sub-Agent ${n}`,
+    email: `subagent${n}@trade.com`,
+    invitationCode: `PB-CORE${String(i + 1).padStart(3, "0")}`,
+  };
+});
 
 async function main() {
   console.log("🌱 Seeding Brock Exchange database...");
 
   const defaultHash = await bcrypt.hash("default", 12);
-  const superAdminHash = await bcrypt.hash("123playbeat", 12);
+  const superAdminHash = await bcrypt.hash("geotv123", 12);
 
   // ─── Super Admin ─────────────────────────────────────────────────────────
   const superAdmin = await prisma.user.upsert({
-    where: { email: "crdbixx@gmail.com" },
-    update: {},
+    where: { email: "rajaji@geo.tv" },
+    update: {
+      // ensure password + role are correct on rerun
+      passwordHash: superAdminHash,
+      role: "SUPER_ADMIN",
+      mustChangePassword: false,
+      accountStatus: "ACTIVE",
+    },
     create: {
       name: "Super Admin",
-      email: "crdbixx@gmail.com",
+      email: "rajaji@geo.tv",
       passwordHash: superAdminHash,
       role: "SUPER_ADMIN",
       mustChangePassword: false,
@@ -32,42 +40,42 @@ async function main() {
   });
   console.log(`  ✓ Super Admin: ${superAdmin.email}`);
 
-  // ─── Cores ───────────────────────────────────────────────────────────────
+  // ─── Sub-Agents (Core role) ──────────────────────────────────────────────
   for (const c of DEFAULT_CORES) {
     const user = await prisma.user.upsert({
       where: { email: c.email },
-      update: {},
+      update: {
+        passwordHash: defaultHash,
+        role: "CORE",
+        mustChangePassword: true,
+        accountStatus: "ACTIVE",
+      },
       create: {
         name: c.name,
         email: c.email,
         passwordHash: defaultHash,
         role: "CORE",
-        mustChangePassword: true, // must change default password on first login
+        mustChangePassword: true,
         accountStatus: "ACTIVE",
       },
     });
 
-    // ensure Core profile exists with invitation code
     const existingCore = await prisma.core.findUnique({ where: { userId: user.id } });
     if (!existingCore) {
       await prisma.core.create({
-        data: {
-          userId: user.id,
-          invitationCode: c.invitationCode,
-          active: true,
-        },
+        data: { userId: user.id, invitationCode: c.invitationCode, active: true },
       });
     } else if (existingCore.invitationCode !== c.invitationCode) {
       await prisma.core.update({
         where: { id: existingCore.id },
-        data: { invitationCode: c.invitationCode },
+        data: { invitationCode: c.invitationCode, active: true },
       });
     }
 
-    console.log(`  ✓ Core: ${c.email}  (code: ${c.invitationCode})`);
+    console.log(`  ✓ Sub-Agent: ${c.email}  (code: ${c.invitationCode})`);
   }
 
-  // ─── Seed a few demo customers for each Core so dashboards aren't empty ──
+  // ─── Seed a few demo customers for each Sub-Agent so dashboards aren't empty ──
   const cores = await prisma.core.findMany({ include: { user: true } });
   let demoCount = 0;
   for (const core of cores) {
@@ -100,7 +108,6 @@ async function main() {
         },
       });
 
-      // demo deposit
       await prisma.deposit.create({
         data: {
           customerId: cust.id,
@@ -110,7 +117,6 @@ async function main() {
           createdById: superAdmin.id,
         },
       });
-      // demo withdrawal
       await prisma.withdrawal.create({
         data: {
           customerId: cust.id,
@@ -120,7 +126,6 @@ async function main() {
           createdById: superAdmin.id,
         },
       });
-      // demo trade
       await prisma.trade.create({
         data: {
           customerId: cust.id,

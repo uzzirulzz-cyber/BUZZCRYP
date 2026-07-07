@@ -5,6 +5,7 @@ import {
   clearAuthCookies,
   getClientInfo,
   requireSession,
+  setAuthCookies,
   verifyPassword,
 } from "@/lib/auth";
 
@@ -65,8 +66,7 @@ export async function POST(req: NextRequest) {
     });
     await audit(user.id, "LOGIN_SUCCESS", req, `Role: ${user.role}`);
 
-    // Issue tokens via helper that imports setAuthCookies lazily to avoid circular
-    const { setAuthCookies } = await import("@/lib/auth");
+    // Issue JWT tokens and set HTTP-only cookies
     await setAuthCookies({
       sub: user.id,
       email: user.email,
