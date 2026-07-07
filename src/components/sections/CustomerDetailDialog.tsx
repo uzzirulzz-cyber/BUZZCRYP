@@ -224,10 +224,10 @@ export function CustomerDetailDialog({
                 <SimpleTable
                   headers={["Amount", "Status", "TX Hash", "Date"]}
                   rows={deposits.map((d) => [
-                    fmtMoney(d.amount, d.currency),
-                    <StatusBadge key="s" status={d.status} />,
-                    <span className="text-xs font-mono">{d.txHash || "—"}</span>,
-                    fmtDate(d.createdAt),
+                    <span key="amt">{fmtMoney(d.amount, d.currency)}</span>,
+                    <StatusBadge key="st" status={d.status} />,
+                    <span key="tx" className="text-xs font-mono">{d.txHash || "—"}</span>,
+                    <span key="dt">{fmtDate(d.createdAt)}</span>,
                   ])}
                 />
               </TabsContent>
@@ -235,10 +235,10 @@ export function CustomerDetailDialog({
                 <SimpleTable
                   headers={["Amount", "Status", "Dest", "Date"]}
                   rows={withdrawals.map((w) => [
-                    fmtMoney(w.amount, w.currency),
-                    <StatusBadge key="s" status={w.status} />,
-                    <span className="text-xs font-mono">{w.destAddress || "—"}</span>,
-                    fmtDate(w.createdAt),
+                    <span key="amt">{fmtMoney(w.amount, w.currency)}</span>,
+                    <StatusBadge key="st" status={w.status} />,
+                    <span key="da" className="text-xs font-mono">{w.destAddress || "—"}</span>,
+                    <span key="dt">{fmtDate(w.createdAt)}</span>,
                   ])}
                 />
               </TabsContent>
@@ -246,12 +246,12 @@ export function CustomerDetailDialog({
                 <SimpleTable
                   headers={["Pair", "Side", "Amount", "Price", "Total", "Date"]}
                   rows={trades.map((t) => [
-                    t.pair,
-                    <Badge key="s" variant="outline" className={t.side === "BUY" ? "border-brock-gold/40 text-brock-gold" : "border-brock-blue/40 text-brock-blue"}>{t.side}</Badge>,
-                    t.amount,
-                    fmtMoney(t.price),
-                    fmtMoney(t.total),
-                    fmtDate(t.createdAt),
+                    <span key="pair">{t.pair}</span>,
+                    <Badge key="side" variant="outline" className={t.side === "BUY" ? "border-brock-gold/40 text-brock-gold" : "border-brock-blue/40 text-brock-blue"}>{t.side}</Badge>,
+                    <span key="amt">{t.amount}</span>,
+                    <span key="pr">{fmtMoney(t.price)}</span>,
+                    <span key="tot">{fmtMoney(t.total)}</span>,
+                    <span key="dt">{fmtDate(t.createdAt)}</span>,
                   ])}
                 />
               </TabsContent>
