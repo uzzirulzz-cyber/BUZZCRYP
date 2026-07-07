@@ -35,6 +35,9 @@ export function LoginForm() {
       }
       toast.success("Welcome back to Brock Exchange");
       await refreshUser();
+      // The refreshUser sets view to 'admin' when user is present.
+      // But also set it explicitly here for immediate response.
+      useApp.getState().setView("admin");
     } catch {
       toast.error("Network error. Try again.");
     } finally {
@@ -207,6 +210,14 @@ export function LoginForm() {
               before the dashboard becomes available.
             </div>
           </div>
+
+          <button
+            type="button"
+            onClick={() => useApp.getState().setView("storefront")}
+            className="block mx-auto text-xs text-muted-foreground hover:text-foreground underline"
+          >
+            ← Back to home
+          </button>
         </div>
       </div>
     </div>

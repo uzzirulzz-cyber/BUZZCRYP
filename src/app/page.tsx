@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useApp } from "@/lib/store";
+import { StorefrontPage } from "@/components/storefront/StorefrontPage";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { ForceChangePassword } from "@/components/auth/ForceChangePassword";
 import { TopBar } from "@/components/layout/TopBar";
@@ -22,7 +23,7 @@ import { ReportsSection } from "@/components/sections/ReportsSection";
 import { SettingsSection } from "@/components/sections/SettingsSection";
 
 export default function Home() {
-  const { user, loadingUser, section, refreshUser } = useApp();
+  const { user, loadingUser, view, section, refreshUser, setView } = useApp();
 
   useEffect(() => {
     refreshUser();
@@ -40,30 +41,45 @@ export default function Home() {
     );
   }
 
-  // Not authenticated → login screen
-  if (!user) {
+  // ─── Admin view: requires authentication ─────────────────────
+  // If someone tries to access #admin without being logged in, redirect to login.
+  if (view === "admin") {
+    if (!user) {
+      // Not authenticated — bounce to login
+      return <LoginForm />;
+    }
+    // Authenticated but must change password → forced password change screen
+    if (user.mustChangePassword) {
+      return <ForceChangePassword />;
+    }
+    // Authenticated admin dashboard
+    return (
+      <div className="min-h-screen flex flex-col">
+        <TopBar />
+        <div className="flex-1 flex">
+          <Sidebar />
+          <main className="flex-1 min-w-0 p-4 sm:p-6 max-w-full">
+            <div className="mx-auto max-w-7xl">
+              {renderSection(section, user.role)}
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Login view ───────────────────────────────────────────────
+  if (view === "login") {
+    // If already authenticated, go straight to admin
+    if (user) {
+      setView("admin");
+      return null;
+    }
     return <LoginForm />;
   }
 
-  // Authenticated but must change password → forced password change screen
-  if (user.mustChangePassword) {
-    return <ForceChangePassword />;
-  }
-
-  // Authenticated dashboard
-  return (
-    <div className="min-h-screen flex flex-col">
-      <TopBar />
-      <div className="flex-1 flex">
-        <Sidebar />
-        <main className="flex-1 min-w-0 p-4 sm:p-6 max-w-full">
-          <div className="mx-auto max-w-7xl">
-            {renderSection(section, user.role)}
-          </div>
-        </main>
-      </div>
-    </div>
-  );
+  // ─── Storefront view (default) ────────────────────────────────
+  return <StorefrontPage />;
 }
 
 function renderSection(section: string, role: string) {
