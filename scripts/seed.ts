@@ -139,10 +139,6 @@ async function main() {
   console.log(`  ✓ Created ${demoCount} demo customers`);
 
   console.log("✅ Seed complete.");
-  console.log("");
-  console.log("Login credentials:");
-  console.log("  Super Admin : crdbixx@gmail.com / 123playbeat");
-  console.log("  Core 1-5    : core1@trade.com ... core5@trade.com / default");
 }
 
 main()

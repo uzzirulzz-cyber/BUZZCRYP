@@ -200,13 +200,11 @@ export function LoginForm() {
           </form>
 
           <div className="rounded-lg brock-card p-4 text-xs space-y-2">
-            <div className="font-semibold text-brock-gold">Default Credentials</div>
-            <div className="text-muted-foreground space-y-1">
-              <div>Super Admin: <span className="text-foreground">crdbixx@gmail.com / 123playbeat</span></div>
-              <div>Core 1-5: <span className="text-foreground">coreN@trade.com / default</span></div>
-              <div className="mt-1 text-brock-blue">
-                Accounts created with the default password must change it on first login.
-              </div>
+            <div className="font-semibold text-brock-gold">Authorized Access Only</div>
+            <div className="text-muted-foreground">
+              This is a private trading platform. Use the credentials issued to you by the platform
+              administrator. Accounts provisioned with a temporary password must change it on first login
+              before the dashboard becomes available.
             </div>
           </div>
         </div>

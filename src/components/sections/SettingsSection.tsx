@@ -61,27 +61,28 @@ export function SettingsSection() {
 
       <Card className="brock-card">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Activity className="h-4 w-4 text-brock-gold" /> Default Accounts</CardTitle>
-          <CardDescription>Pre-seeded accounts for testing and initial setup</CardDescription>
+          <CardTitle className="flex items-center gap-2"><Activity className="h-4 w-4 text-brock-gold" /> Account Provisioning</CardTitle>
+          <CardDescription>How administrator accounts are issued on this platform</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div>
             <div className="font-medium mb-1">Super Admin</div>
             <div className="text-xs text-muted-foreground">
-              Email: <span className="text-foreground font-mono">crdbixx@gmail.com</span> · Password: <span className="text-foreground font-mono">123playbeat</span>
+              The root platform account with unrestricted access to every feature, user, customer,
+              wallet, transaction, log, and configuration setting. Credentials are issued out-of-band
+              and never displayed anywhere in the storefront or admin interface.
             </div>
-            <div className="text-xs text-muted-foreground">Full platform access — unrestricted.</div>
           </div>
           <div>
-            <div className="font-medium mb-1">Core Accounts (1-5)</div>
+            <div className="font-medium mb-1">Core Accounts</div>
             <div className="text-xs text-muted-foreground">
-              Emails: <span className="font-mono">core1@trade.com ... core5@trade.com</span> · Password: <span className="font-mono">default</span>
-            </div>
-            <div className="text-xs text-muted-foreground">
-              Invitation codes: PB-CORE001 through PB-CORE005 (globally unique).
+              Sub-tenant accounts that can only manage customers registered with their own unique
+              invitation code. Each Core is provisioned by the Super Admin via the User Management
+              screen, and credentials are delivered out-of-band.
             </div>
             <div className="text-xs text-amber-400 mt-1">
-              ⚠ All Core accounts must change their password on first login.
+              ⚠ All accounts provisioned with a temporary password must change it on first login
+              before the dashboard becomes available.
             </div>
           </div>
         </CardContent>
