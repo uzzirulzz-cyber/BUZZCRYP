@@ -126,15 +126,27 @@ async function main() {
           createdById: superAdmin.id,
         },
       });
+      // Demo fixed-time trade (some pending, some settled)
+      const durations = [30, 60, 120] as const;
+      const profits = [20, 30, 50] as const;
+      const dirIdx = i % 2 === 0 ? "UP" : "DOWN";
+      const durIdx = i % 3;
+      const isPending = i === 1; // make one pending for demo
       await prisma.trade.create({
         data: {
           customerId: cust.id,
           pair: "BTC/USDT",
-          side: "BUY",
-          amount: 0.01 * i,
+          side: dirIdx,
+          direction: dirIdx,
+          amount: 50 + i * 10,
           price: 62000 + i * 500,
-          total: 0.01 * i * (62000 + i * 500),
-          status: "COMPLETED",
+          total: 50 + i * 10,
+          status: isPending ? "PENDING" : "COMPLETED",
+          outcome: isPending ? "PENDING" : (i % 3 === 0 ? "WIN" : "LOSS"),
+          duration: durations[durIdx],
+          profitPercent: profits[durIdx],
+          payout: isPending ? 0 : (i % 3 === 0 ? (50 + i * 10) * (1 + profits[durIdx] / 100) : 0),
+          settlesAt: isPending ? new Date(Date.now() + 60000) : null,
           createdById: superAdmin.id,
         },
       });

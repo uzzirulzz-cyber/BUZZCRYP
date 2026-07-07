@@ -17,7 +17,7 @@ import {
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Search, Trash2, CandlestickChart, ArrowRight } from "lucide-react";
+import { Plus, Trash2, CandlestickChart, ArrowRight, Zap, Rocket, Gem, TrendingUp, TrendingDown, Clock, AlertTriangle, RefreshCw } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { fmtMoney, fmtRelative, fmtNum } from "@/lib/format";
 import { StatusBadge } from "./DashboardSection";
@@ -29,10 +29,16 @@ type Trade = {
   customerId: string;
   pair: string;
   side: string;
+  direction: string;
   amount: number;
   price: number;
   total: number;
   status: string;
+  outcome: string;
+  duration: number;
+  profitPercent: number;
+  payout: number;
+  settlesAt: string | null;
   createdAt: string;
   customer: {
     user: { name: string; email: string };
@@ -40,23 +46,40 @@ type Trade = {
   };
 };
 
+const MARKET_PRICES: Record<string, number> = {
+  "BTC/USDT": 62500,
+  "ETH/USDT": 3120,
+  "BTG/USDT": 38.5,
+  "BTS/USDT": 0.045,
+};
+
+// Duration tiers — potential returns (illustrative, not guaranteed)
+const DURATION_TIERS = [
+  { seconds: 30, label: "30s Trade", subtitle: "Quick Trade", profitPercent: 20, icon: Zap, color: "blue" },
+  { seconds: 60, label: "60s Trade", subtitle: "Standard Trade", profitPercent: 30, icon: Rocket, color: "gold" },
+  { seconds: 120, label: "120s Trade", subtitle: "Premium Trade", profitPercent: 50, icon: Gem, color: "gold" },
+] as const;
+
 export function TradesSection() {
   const { user } = useApp();
   const isAdmin = user?.role === "SUPER_ADMIN";
   const [items, setItems] = useState<Trade[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [side, setSide] = useState("ALL");
+  const [direction, setDirection] = useState("ALL");
   const [pair, setPair] = useState("ALL");
+  const [outcome, setOutcome] = useState("ALL");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
+  const [settling, setSettling] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams({ page: String(page), pageSize: "20" });
-    if (side !== "ALL") params.set("side", side);
+    if (direction !== "ALL") params.set("direction", direction);
     if (pair !== "ALL") params.set("pair", pair);
+    if (outcome !== "ALL") params.set("outcome", outcome);
     if (search) params.set("search", search);
     try {
       const res = await fetch(`/api/trades?${params.toString()}`, { cache: "no-store" });
@@ -66,7 +89,7 @@ export function TradesSection() {
     } finally {
       setLoading(false);
     }
-  }, [page, side, pair, search]);
+  }, [page, direction, pair, outcome, search]);
 
   useEffect(() => {
     const t = setTimeout(load, 250);
@@ -81,6 +104,21 @@ export function TradesSection() {
     load();
   };
 
+  const settlePending = async () => {
+    setSettling(true);
+    try {
+      const res = await fetch("/api/trades", { method: "PUT" });
+      const data = await res.json();
+      if (!res.ok) return toast.error(data.error || "Failed");
+      toast.success(`Settled ${data.settled} pending trade(s)`);
+      load();
+    } finally {
+      setSettling(false);
+    }
+  };
+
+  const pendingCount = items.filter((t) => t.status === "PENDING").length;
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -90,46 +128,54 @@ export function TradesSection() {
             Trades
           </h1>
           <p className="text-sm text-muted-foreground">
-            {isAdmin ? "All trades across the platform." : "Trades for your assigned customers."}
+            {isAdmin ? "All fixed-time trades across the platform." : "Trades for your assigned customers."}
           </p>
         </div>
-        {isAdmin && (
-          <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-            <DialogTrigger asChild>
-              <Button className="brock-gradient-gold text-brock-navy"><Plus className="h-4 w-4 mr-1" /> New Trade</Button>
-            </DialogTrigger>
-            <CreateTradeForm onCreated={() => { setCreateOpen(false); load(); }} />
-          </Dialog>
-        )}
+        <div className="flex gap-2">
+          {isAdmin && pendingCount > 0 && (
+            <Button variant="outline" onClick={settlePending} disabled={settling}>
+              <RefreshCw className={`h-4 w-4 mr-1 ${settling ? "animate-spin" : ""}`} />
+              Settle pending ({pendingCount})
+            </Button>
+          )}
+          {isAdmin && (
+            <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+              <DialogTrigger asChild>
+                <Button className="brock-gradient-gold text-brock-navy"><Plus className="h-4 w-4 mr-1" /> New Trade</Button>
+              </DialogTrigger>
+              <CreateTradeForm onCreated={() => { setCreateOpen(false); load(); }} />
+            </Dialog>
+          )}
+        </div>
       </div>
 
       <Card className="brock-card">
         <CardHeader className="pb-3">
           <div className="flex flex-wrap gap-2">
-            <div className="relative flex-1 min-w-48">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search..."
-                value={search}
-                onChange={(e) => { setPage(1); setSearch(e.target.value); }}
-                className="pl-8 bg-input/40"
-              />
-            </div>
-            <Select value={side} onValueChange={(v) => { setPage(1); setSide(v); }}>
-              <SelectTrigger className="w-32 bg-input/40"><SelectValue placeholder="Side" /></SelectTrigger>
+            <Select value={direction} onValueChange={(v) => { setPage(1); setDirection(v); }}>
+              <SelectTrigger className="w-32 bg-input/40"><SelectValue placeholder="Direction" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">All sides</SelectItem>
-                <SelectItem value="BUY">Buy</SelectItem>
-                <SelectItem value="SELL">Sell</SelectItem>
+                <SelectItem value="ALL">All directions</SelectItem>
+                <SelectItem value="UP">UP</SelectItem>
+                <SelectItem value="DOWN">DOWN</SelectItem>
               </SelectContent>
             </Select>
             <Select value={pair} onValueChange={(v) => { setPage(1); setPair(v); }}>
               <SelectTrigger className="w-36 bg-input/40"><SelectValue placeholder="Pair" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">All pairs</SelectItem>
-                {["BTC/USDT", "ETH/USDT", "BTG/USDT", "BTS/USDT"].map((p) => (
+                {Object.keys(MARKET_PRICES).map((p) => (
                   <SelectItem key={p} value={p}>{p}</SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+            <Select value={outcome} onValueChange={(v) => { setPage(1); setOutcome(v); }}>
+              <SelectTrigger className="w-36 bg-input/40"><SelectValue placeholder="Outcome" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All outcomes</SelectItem>
+                <SelectItem value="PENDING">Pending</SelectItem>
+                <SelectItem value="WIN">Win</SelectItem>
+                <SelectItem value="LOSS">Loss</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -141,18 +187,19 @@ export function TradesSection() {
                 <TableRow className="bg-muted/30 hover:bg-muted/30">
                   <TableHead>Customer</TableHead>
                   <TableHead>Pair</TableHead>
-                  <TableHead>Side</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Direction</TableHead>
+                  <TableHead>Stake</TableHead>
+                  <TableHead>Duration</TableHead>
+                  <TableHead>Potential</TableHead>
+                  <TableHead>Outcome</TableHead>
+                  <TableHead>Payout</TableHead>
                   <TableHead>When</TableHead>
                   {isAdmin && <TableHead className="w-12"></TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {loading && <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>}
-                {!loading && items.length === 0 && <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">No trades</TableCell></TableRow>}
+                {loading && <TableRow><TableCell colSpan={10} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>}
+                {!loading && items.length === 0 && <TableRow><TableCell colSpan={10} className="text-center py-8 text-muted-foreground">No trades</TableCell></TableRow>}
                 {!loading && items.map((t) => (
                   <TableRow key={t.id} className="hover:bg-sidebar-accent/40">
                     <TableCell>
@@ -161,14 +208,16 @@ export function TradesSection() {
                     </TableCell>
                     <TableCell className="font-mono text-sm">{t.pair}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={t.side === "BUY" ? "border-brock-gold/40 text-brock-gold" : "border-brock-blue/40 text-brock-blue"}>
-                        {t.side}
+                      <Badge variant="outline" className={t.direction === "UP" ? "border-brock-gold/40 text-brock-gold" : "border-brock-blue/40 text-brock-blue"}>
+                        {t.direction === "UP" ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
+                        {t.direction}
                       </Badge>
                     </TableCell>
-                    <TableCell>{fmtNum(t.amount, 4)}</TableCell>
-                    <TableCell>{fmtMoney(t.price)}</TableCell>
-                    <TableCell className="font-semibold">{fmtMoney(t.total)}</TableCell>
-                    <TableCell><StatusBadge status={t.status} /></TableCell>
+                    <TableCell className="font-semibold">{fmtMoney(t.amount)}</TableCell>
+                    <TableCell className="text-sm">{t.duration}s</TableCell>
+                    <TableCell className="text-sm text-brock-gold">+{t.profitPercent}%</TableCell>
+                    <TableCell><OutcomeBadge outcome={t.outcome} /></TableCell>
+                    <TableCell className="font-semibold">{t.payout > 0 ? fmtMoney(t.payout) : "—"}</TableCell>
                     <TableCell className="text-xs text-muted-foreground">{fmtRelative(t.createdAt)}</TableCell>
                     {isAdmin && (
                       <TableCell>
@@ -189,23 +238,35 @@ export function TradesSection() {
   );
 }
 
-const MARKET_PRICES: Record<string, number> = {
-  "BTC/USDT": 62500,
-  "ETH/USDT": 3120,
-  "BTG/USDT": 38.5,
-  "BTS/USDT": 0.045,
-};
+function OutcomeBadge({ outcome }: { outcome: string }) {
+  const map: Record<string, string> = {
+    PENDING: "border-brock-blue/40 text-brock-blue",
+    WIN: "border-emerald-400/40 text-emerald-400",
+    LOSS: "border-destructive/40 text-destructive",
+    DRAW: "border-amber-400/40 text-amber-400",
+  };
+  return (
+    <Badge variant="outline" className={`text-[10px] ${map[outcome] || ""}`}>
+      {outcome}
+    </Badge>
+  );
+}
 
 function CreateTradeForm({ onCreated }: { onCreated: () => void }) {
   const [customers, setCustomers] = useState<any[]>([]);
   const [customerId, setCustomerId] = useState("");
   const [pair, setPair] = useState("BTC/USDT");
-  const [side, setSide] = useState("BUY");
+  const [direction, setDirection] = useState<"UP" | "DOWN">("UP");
   const [amount, setAmount] = useState("");
+  const [duration, setDuration] = useState<number>(30);
   const [saving, setSaving] = useState(false);
 
   const price = MARKET_PRICES[pair] || 0;
-  const total = parseFloat(amount || "0") * price;
+  const stake = parseFloat(amount || "0");
+  const selectedTier = DURATION_TIERS.find((t) => t.seconds === duration);
+  const profitPercent = selectedTier?.profitPercent || 0;
+  const potentialPayout = stake + stake * (profitPercent / 100);
+  const potentialProfit = stake * (profitPercent / 100);
 
   useEffect(() => {
     fetch("/api/customers?pageSize=100", { cache: "no-store" })
@@ -214,17 +275,18 @@ function CreateTradeForm({ onCreated }: { onCreated: () => void }) {
   }, []);
 
   const submit = async () => {
-    if (!customerId || !amount) return toast.error("Customer and amount required");
+    if (!customerId || !amount) return toast.error("Customer and stake amount required");
+    if (stake <= 0) return toast.error("Stake must be positive");
     setSaving(true);
     try {
       const res = await fetch("/api/trades", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customerId, pair, side, amount: parseFloat(amount), price }),
+        body: JSON.stringify({ customerId, pair, direction, amount: stake, duration }),
       });
       const data = await res.json();
       if (!res.ok) return toast.error(data.error || "Failed");
-      toast.success("Trade recorded");
+      toast.success(data.message || "Trade placed");
       setCustomerId(""); setAmount("");
       onCreated();
     } finally {
@@ -233,56 +295,169 @@ function CreateTradeForm({ onCreated }: { onCreated: () => void }) {
   };
 
   return (
-    <DialogContent>
+    <DialogContent className="max-w-lg">
       <DialogHeader>
-        <DialogTitle>Record manual trade</DialogTitle>
-        <DialogDescription>Trades are recorded as COMPLETED and do not affect wallet balance (paper trading).</DialogDescription>
+        <DialogTitle>Place a fixed-time trade</DialogTitle>
+        <DialogDescription>
+          Choose a cryptocurrency, predict if the price will go UP or DOWN, select a duration, and set your stake.
+          The stake is debited immediately. If your prediction is correct at settlement, you receive the payout.
+        </DialogDescription>
       </DialogHeader>
-      <div className="space-y-3 py-2">
-        <div className="space-y-1.5">
-          <Label>Customer</Label>
-          <Select value={customerId} onValueChange={setCustomerId}>
-            <SelectTrigger><SelectValue placeholder="Select customer" /></SelectTrigger>
-            <SelectContent>
-              {customers.map((c) => (
-                <SelectItem key={c.id} value={c.id}>{c.user.name} — {c.user.email}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+
+      <div className="space-y-4 py-2">
+        {/* Customer + Pair */}
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1.5">
-            <Label>Pair</Label>
-            <Select value={pair} onValueChange={(v) => { setPair(v); }}>
+            <Label>Customer</Label>
+            <Select value={customerId} onValueChange={setCustomerId}>
+              <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+              <SelectContent>
+                {customers.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>{c.user.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Cryptocurrency</Label>
+            <Select value={pair} onValueChange={setPair}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {Object.keys(MARKET_PRICES).map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-1.5">
-            <Label>Side</Label>
-            <Select value={side} onValueChange={setSide}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="BUY">BUY</SelectItem>
-                <SelectItem value="SELL">SELL</SelectItem>
-              </SelectContent>
-            </Select>
+        </div>
+
+        {/* Market price display */}
+        <div className="rounded-md p-3 bg-muted/30 text-sm flex justify-between items-center">
+          <div>
+            <div className="text-xs text-muted-foreground">Current market price</div>
+            <div className="font-bold brock-text-gold">{fmtMoney(price)}</div>
+          </div>
+          <div className="text-right">
+            <div className="text-xs text-muted-foreground">Pair</div>
+            <div className="font-mono">{pair}</div>
           </div>
         </div>
+
+        {/* Duration cards */}
         <div className="space-y-1.5">
-          <Label>Amount (in base asset)</Label>
-          <Input type="number" step="0.0001" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.01" />
+          <Label>Trade Duration</Label>
+          <div className="grid grid-cols-3 gap-2">
+            {DURATION_TIERS.map((tier) => {
+              const Icon = tier.icon;
+              const active = duration === tier.seconds;
+              return (
+                <button
+                  key={tier.seconds}
+                  type="button"
+                  onClick={() => setDuration(tier.seconds)}
+                  className={`relative rounded-lg border p-3 text-left transition-all ${
+                    active
+                      ? "border-brock-gold/50 bg-brock-gold/10 brock-glow-gold"
+                      : "border-border/40 bg-muted/20 hover:border-brock-gold/30"
+                  }`}
+                >
+                  <Icon className={`h-4 w-4 mb-1.5 ${tier.color === "gold" ? "text-brock-gold" : "text-brock-blue"}`} />
+                  <div className="text-xs font-semibold">{tier.label}</div>
+                  <div className="text-[10px] text-muted-foreground">{tier.subtitle}</div>
+                  <div className="mt-1.5 flex items-center gap-1">
+                    <Clock className="h-2.5 w-2.5 text-muted-foreground" />
+                    <span className="text-[10px]">{tier.seconds}s</span>
+                  </div>
+                  <div className={`text-sm font-bold ${tier.color === "gold" ? "brock-text-gold" : "text-brock-blue"}`}>
+                    +{tier.profitPercent}%
+                  </div>
+                  {active && (
+                    <div className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-brock-gold" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-[10px] text-muted-foreground">
+            Potential Return: Up to +{profitPercent}% — illustrative rate, not guaranteed.
+          </p>
         </div>
-        <div className="rounded-md p-3 bg-muted/30 text-sm">
-          <div className="flex justify-between"><span className="text-muted-foreground">Market price</span><span>{fmtMoney(price)}</span></div>
-          <div className="flex justify-between font-semibold"><span>Estimated total</span><span className="brock-text-gold">{fmtMoney(total)}</span></div>
+
+        {/* Direction toggle */}
+        <div className="space-y-1.5">
+          <Label>Direction — predict the price movement</Label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setDirection("UP")}
+              className={`rounded-lg border p-3 flex flex-col items-center gap-1 transition-all ${
+                direction === "UP"
+                  ? "border-brock-gold/50 bg-brock-gold/10 brock-glow-gold"
+                  : "border-border/40 bg-muted/20 hover:border-brock-gold/30"
+              }`}
+            >
+              <TrendingUp className={`h-5 w-5 ${direction === "UP" ? "text-brock-gold" : "text-muted-foreground"}`} />
+              <span className="text-sm font-semibold">UP</span>
+              <span className="text-[10px] text-muted-foreground">Price goes higher</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setDirection("DOWN")}
+              className={`rounded-lg border p-3 flex flex-col items-center gap-1 transition-all ${
+                direction === "DOWN"
+                  ? "border-brock-blue/50 bg-brock-blue/10 brock-glow-blue"
+                  : "border-border/40 bg-muted/20 hover:border-brock-blue/30"
+              }`}
+            >
+              <TrendingDown className={`h-5 w-5 ${direction === "DOWN" ? "text-brock-blue" : "text-muted-foreground"}`} />
+              <span className="text-sm font-semibold">DOWN</span>
+              <span className="text-[10px] text-muted-foreground">Price goes lower</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Stake amount */}
+        <div className="space-y-1.5">
+          <Label>Stake amount (USDT)</Label>
+          <Input
+            type="number"
+            step="0.01"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="e.g. 100.00"
+          />
+        </div>
+
+        {/* Summary */}
+        <div className="rounded-md p-3 bg-muted/30 text-sm space-y-1">
+          <div className="flex justify-between"><span className="text-muted-foreground">Stake</span><span>{fmtMoney(stake)}</span></div>
+          <div className="flex justify-between"><span className="text-muted-foreground">Direction</span><span className={direction === "UP" ? "text-brock-gold" : "text-brock-blue"}>{direction}</span></div>
+          <div className="flex justify-between"><span className="text-muted-foreground">Duration</span><span>{duration}s</span></div>
+          <div className="flex justify-between"><span className="text-muted-foreground">Potential return</span><span className="text-brock-gold">Up to +{profitPercent}%</span></div>
+          <div className="flex justify-between font-semibold border-t border-border/40 pt-1 mt-1">
+            <span>Potential payout</span>
+            <span className="brock-text-gold">{stake > 0 ? fmtMoney(potentialPayout) : "—"}</span>
+          </div>
+          {stake > 0 && (
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>Potential profit</span>
+              <span className="text-emerald-400">+{fmtMoney(potentialProfit)}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Disclaimer */}
+        <div className="flex items-start gap-2 rounded-md p-2.5 bg-amber-500/5 border border-amber-500/20 text-[11px] text-muted-foreground">
+          <AlertTriangle className="h-3.5 w-3.5 text-amber-400 shrink-0 mt-0.5" />
+          <span>
+            Returns are illustrative and subject to the platform&apos;s rules and successful trade outcomes.
+            Trading involves risk — you may lose your entire stake if your prediction is incorrect.
+          </span>
         </div>
       </div>
+
       <DialogFooter>
-        <Button onClick={submit} disabled={saving} className="brock-gradient-gold text-brock-navy">
-          {saving ? "Recording..." : "Record trade"} <ArrowRight className="h-4 w-4 ml-1" />
+        <Button onClick={submit} disabled={saving || stake <= 0} className="brock-gradient-gold text-brock-navy">
+          {saving ? "Placing trade..." : `Place ${direction} trade — ${duration}s`}
+          <ArrowRight className="h-4 w-4 ml-1" />
         </Button>
       </DialogFooter>
     </DialogContent>
