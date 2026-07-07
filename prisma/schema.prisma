@@ -101,19 +101,30 @@ model Withdrawal {
 }
 
 model Trade {
-  id          String   @id @default(cuid())
-  customerId  String
-  pair        String   @default("BTC/USDT")
-  side        String   // BUY | SELL
-  amount      Float    // base asset amount
-  price       Float
-  total       Float    // amount * price
-  status      String   @default("COMPLETED") // COMPLETED | PENDING | CANCELLED
-  createdById String
-  createdAt   DateTime @default(now())
+  id            String    @id @default(cuid())
+  customerId    String
+  pair          String    @default("BTC/USDT")
+  // Legacy fields kept for backwards compatibility with simple BUY/SELL trades
+  side          String    // BUY | SELL (legacy) or UP | DOWN (fixed-time)
+  amount        Float     // stake amount in quote currency (USDT)
+  price         Float     // entry price
+  total         Float     // amount * price (legacy) or stake amount
+  status        String    @default("COMPLETED") // PENDING | COMPLETED | CANCELLED
+  createdById   String
+  createdAt     DateTime  @default(now())
 
-  customer    Customer @relation(fields: [customerId], references: [id])
-  createdBy   User     @relation("TradeCreatedBy", fields: [createdById], references: [id])
+  // Fixed-time trading fields
+  direction     String    @default("UP")   // UP | DOWN — the user's prediction
+  duration      Int       @default(0)      // duration in seconds (0 = legacy immediate trade)
+  profitPercent Float     @default(0)      // potential return percentage (e.g. 20 = +20%)
+  outcome       String    @default("PENDING") // PENDING | WIN | LOSS | DRAW
+  payout        Float     @default(0)      // actual payout (0 if loss or pending)
+  settlesAt     DateTime?                  // when the trade should be settled
+  exitPrice     Float?                     // price at settlement
+  updatedAt     DateTime  @updatedAt
+
+  customer      Customer  @relation(fields: [customerId], references: [id])
+  createdBy     User      @relation("TradeCreatedBy", fields: [createdById], references: [id])
 }
 
 model WalletAdjustment {
