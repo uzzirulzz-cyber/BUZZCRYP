@@ -45,7 +45,7 @@ export function SettingsSection() {
             <CardDescription>Current session and platform metadata</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
-            <Info label="Platform name" value="BlockExchange.Buzz" />
+            <Info label="Platform name" value="BuzzCryp" />
             <Info label="Tagline" value="Trade Smarter. Grow Faster." />
             <Info label="Version" value="1.0.0" />
             <Info label="Your role" value={user?.role || "—"} />

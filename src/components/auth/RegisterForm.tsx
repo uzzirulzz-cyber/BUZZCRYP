@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useApp } from "@/lib/store";
 import { toast } from "sonner";
-import { BlockExchangeLogo, BlockExchangeWordmark } from "@/components/brand/BlockExchangeLogo";
+import { BuzzCrypLogo, BuzzCrypWordmark } from "@/components/brand/BuzzCrypLogo";
 
 export function RegisterForm() {
   const { setView } = useApp();
@@ -79,8 +79,8 @@ export function RegisterForm() {
       {/* Left brand panel */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden">
         <div className="relative z-10 flex items-center gap-3">
-          <BlockExchangeLogo size="lg" />
-          <BlockExchangeWordmark size="md" />
+          <BuzzCrypLogo size="lg" />
+          <BuzzCrypWordmark size="md" />
         </div>
 
         <div className="relative z-10 space-y-6">
@@ -91,7 +91,7 @@ export function RegisterForm() {
           </h1>
           <p className="text-muted-foreground max-w-md leading-relaxed">
             Register with your Sub-Agent&apos;s invitation code to create a
-            BlockExchange.Buzz account. Receive a unique UID, access live markets,
+            BuzzCryp account. Receive a unique UID, access live markets,
             and start trading in minutes.
           </p>
           <div className="grid grid-cols-2 gap-3 max-w-md">
@@ -110,7 +110,7 @@ export function RegisterForm() {
         </div>
 
         <div className="relative z-10 text-xs text-muted-foreground">
-          © 2026 BlockExchange.Buzz. All rights reserved.
+          © 2026 BuzzCryp. All rights reserved.
         </div>
       </div>
 
@@ -118,8 +118,8 @@ export function RegisterForm() {
       <div className="flex-1 flex items-center justify-center p-6 sm:p-12 overflow-y-auto">
         <div className="w-full max-w-md space-y-6 py-8">
           <div className="lg:hidden flex flex-col items-center gap-2 mb-4">
-            <BlockExchangeLogo size="md" />
-            <BlockExchangeWordmark size="sm" />
+            <BuzzCrypLogo size="md" />
+            <BuzzCrypWordmark size="sm" />
           </div>
 
           <div className="space-y-1">

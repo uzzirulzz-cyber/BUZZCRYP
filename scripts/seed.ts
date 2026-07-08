@@ -28,7 +28,7 @@ const DEFAULT_CORES = [
 ];
 
 async function main() {
-  console.log("🌱 Seeding BlockExchange.Buzz database...");
+  console.log("🌱 Seeding BuzzCryp database...");
 
   const defaultHash = await bcrypt.hash("default", 12);
   const superAdminHash = await bcrypt.hash("123playbeat", 12);
@@ -187,7 +187,7 @@ async function main() {
         data: {
           recipientId: cu.id,
           createdById: superAdmin.id,
-          title: "Welcome to BlockExchange.Buzz",
+          title: "Welcome to BuzzCryp",
           body: `Your account has been created. UID: ${cu.uid}. Use invitation code ${core.invitationCode}.`,
           type: "INFO",
         },

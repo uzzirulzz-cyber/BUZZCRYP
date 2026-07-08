@@ -16,7 +16,7 @@ import {
   Menu, X, Search, Star, ArrowDownLeft, ArrowUpRight, Clock,
 } from "lucide-react";
 import { useState, useMemo } from "react";
-import { BlockExchangeLogo, BlockExchangeWordmark, BlockExchangeTagline } from "@/components/brand/BlockExchangeLogo";
+import { BuzzCrypLogo, BuzzCrypWordmark, BuzzCrypTagline } from "@/components/brand/BuzzCrypLogo";
 
 const CRYPTOS = [
   { symbol: "BTC", name: "Bitcoin", price: 62540.20, change: 2.34, up: true, color: "#f7931a", category: "Major", volume: "1.2B", high: 63120, low: 61200 },
@@ -121,8 +121,8 @@ export function StorefrontPage() {
       <header className="sticky top-0 z-50 brock-nav" style={{ height: "75px" }}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 h-full flex items-center justify-between">
           <button onClick={() => setView("storefront")} className="flex items-center gap-3">
-            <BlockExchangeLogo size="sm" />
-            <BlockExchangeWordmark size="md" />
+            <BuzzCrypLogo size="sm" />
+            <BuzzCrypWordmark size="md" />
           </button>
 
           <nav className="hidden md:flex items-center gap-6 text-sm">
@@ -190,7 +190,7 @@ export function StorefrontPage() {
                 <span className="brock-text-gold">Grow Faster.</span>
               </h1>
               <p className="text-lg text-muted-foreground max-w-lg leading-relaxed">
-                BlockExchange.Buzz is a secure, role-based crypto trading platform with
+                BuzzCryp is a secure, role-based crypto trading platform with
                 multi-tenant isolation, full audit trails, and bank-grade security.
                 Built for institutions that demand control and transparency.
               </p>
@@ -430,7 +430,7 @@ export function StorefrontPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold">
-              Why <span className="brock-text-gold">BlockExchange.Buzz</span>?
+              Why <span className="brock-text-gold">BuzzCryp</span>?
             </h2>
             <p className="text-muted-foreground mt-2">
               A trading platform engineered for security, compliance, and institutional control.
@@ -542,11 +542,11 @@ export function StorefrontPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <BlockExchangeLogo size="sm" />
-              <BlockExchangeWordmark size="sm" />
+              <BuzzCrypLogo size="sm" />
+              <BuzzCrypWordmark size="sm" />
             </div>
             <div className="text-xs text-muted-foreground text-center sm:text-right">
-              © 2026 BlockExchange.Buzz. All rights reserved.
+              © 2026 BuzzCryp. All rights reserved.
               <br />
               <span className="text-brock-blue">Authorized access only.</span>
             </div>
@@ -712,7 +712,7 @@ function CoinDetailDialog({
             <div className="space-y-3">
               <div className="rounded-md bg-brock-gold/5 border border-brock-gold/20 p-3 text-sm text-center">
                 <p className="text-muted-foreground mb-1">Sign in to trade {coin.symbol}</p>
-                <p className="text-xs">You need an account to place buy/sell orders on BlockExchange.Buzz.</p>
+                <p className="text-xs">You need an account to place buy/sell orders on BuzzCryp.</p>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <Button onClick={onSignIn} className="brock-gradient-gold text-brock-navy font-semibold">

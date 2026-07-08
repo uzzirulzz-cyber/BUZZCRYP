@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { BlockExchangeLogo, BlockExchangeWordmark } from "@/components/brand/BlockExchangeLogo";
+import { BuzzCrypLogo, BuzzCrypWordmark } from "@/components/brand/BuzzCrypLogo";
 
 export function TopBar() {
   const { user, logout } = useApp();
@@ -60,9 +60,9 @@ export function TopBar() {
     <header className="sticky top-0 z-30 brock-nav" style={{ height: "75px" }}>
       <div className="px-4 sm:px-6 h-full flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <BlockExchangeLogo size="sm" />
+          <BuzzCrypLogo size="sm" />
           <div className="hidden sm:block">
-            <BlockExchangeWordmark size="sm" />
+            <BuzzCrypWordmark size="sm" />
           </div>
         </div>
 

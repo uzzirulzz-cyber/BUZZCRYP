@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useApp } from "@/lib/store";
 import { fmtMoney, fmtNum, fmtRelative, fmtDate } from "@/lib/format";
 import { StatusBadge } from "@/components/sections/DashboardSection";
-import { BlockExchangeLogo, BlockExchangeWordmark } from "@/components/brand/BlockExchangeLogo";
+import { BuzzCrypLogo, BuzzCrypWordmark } from "@/components/brand/BuzzCrypLogo";
 import {
   Hexagon, Users, DollarSign, ArrowDownToLine, ArrowUpFromLine, Ticket,
   Award, Percent, Copy, Check, UserCog, LogOut, Home as HomeIcon,
@@ -78,9 +78,9 @@ export function AgentPanel() {
       <header className="sticky top-0 z-30 border-b border-brock-gold/15 bg-sidebar/80 backdrop-blur-md">
         <div className="px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
           <button onClick={() => setView("storefront")} className="flex items-center gap-3">
-            <BlockExchangeLogo size="sm" />
+            <BuzzCrypLogo size="sm" />
             <div className="hidden sm:block">
-              <BlockExchangeWordmark size="sm" />
+              <BuzzCrypWordmark size="sm" />
               <div className="text-[10px] text-muted-foreground leading-tight">Sub-Agent Panel</div>
             </div>
           </button>

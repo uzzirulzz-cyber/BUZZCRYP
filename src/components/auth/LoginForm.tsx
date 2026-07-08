@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useApp } from "@/lib/store";
 import { toast } from "sonner";
-import { BlockExchangeLogo, BlockExchangeWordmark } from "@/components/brand/BlockExchangeLogo";
+import { BuzzCrypLogo, BuzzCrypWordmark } from "@/components/brand/BuzzCrypLogo";
 
 export function LoginForm() {
   const refreshUser = useApp((s) => s.refreshUser);
@@ -34,7 +34,7 @@ export function LoginForm() {
         toast.error(data.error || "Login failed");
         return;
       }
-      toast.success("Welcome back to BlockExchange.Buzz");
+      toast.success("Welcome back to BuzzCryp");
       await refreshUser();
       // Redirect based on role
       const u = useApp.getState().user;
@@ -85,8 +85,8 @@ export function LoginForm() {
         </div>
 
         <div className="relative z-10 flex items-center gap-3">
-          <BlockExchangeLogo size="lg" />
-          <BlockExchangeWordmark size="md" />
+          <BuzzCrypLogo size="lg" />
+          <BuzzCrypWordmark size="md" />
         </div>
 
         <div className="relative z-10 space-y-6">
@@ -120,7 +120,7 @@ export function LoginForm() {
         </div>
 
         <div className="relative z-10 text-xs text-muted-foreground">
-          © 2026 BlockExchange.Buzz. All rights reserved.
+          © 2026 BuzzCryp. All rights reserved.
         </div>
       </div>
 
@@ -128,8 +128,8 @@ export function LoginForm() {
       <div className="flex-1 flex items-center justify-center p-6 sm:p-12">
         <div className="w-full max-w-md space-y-6">
           <div className="lg:hidden flex flex-col items-center gap-2 mb-4">
-            <BlockExchangeLogo size="md" />
-            <BlockExchangeWordmark size="sm" />
+            <BuzzCrypLogo size="md" />
+            <BuzzCrypWordmark size="sm" />
           </div>
 
           <div className="space-y-1">
