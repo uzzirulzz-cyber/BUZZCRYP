@@ -2,6 +2,6 @@
 
 import { AppShell } from "@/components/AppShell";
 
-export default function Home() {
+export default function HomePage() {
   return <AppShell />;
 }
