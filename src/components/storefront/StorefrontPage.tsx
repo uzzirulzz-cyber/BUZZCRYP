@@ -2,36 +2,33 @@
 
 import { useApp } from "@/lib/store";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  ShieldCheck,
-  ArrowRight,
-  Hexagon,
-  Lock,
-  CandlestickChart,
-  Wallet,
-  TrendingUp,
-  Globe,
-  Zap,
-  Users,
-  DollarSign,
-  CheckCircle2,
-  Menu,
-  X,
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  ShieldCheck, ArrowRight, Hexagon, Lock, CandlestickChart, Wallet,
+  TrendingUp, TrendingDown, Globe, Zap, Users, DollarSign, CheckCircle2,
+  Menu, X, Search, Star, ArrowDownLeft, ArrowUpRight, Clock,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 const CRYPTOS = [
-  { symbol: "BTC", name: "Bitcoin", price: "62,540.20", change: "+2.34%", up: true, color: "#f7931a" },
-  { symbol: "ETH", name: "Ethereum", price: "3,122.80", change: "+1.87%", up: true, color: "#627eea" },
-  { symbol: "BTG", name: "Bitcoin Gold", price: "38.52", change: "-0.42%", up: false, color: "#dba000" },
-  { symbol: "BTS", name: "BitShares", price: "0.0452", change: "+3.12%", up: true, color: "#00a9e0" },
-  { symbol: "USDT", name: "Tether", price: "1.0001", change: "+0.01%", up: true, color: "#26a17b" },
-  { symbol: "SOL", name: "Solana", price: "148.30", change: "+4.56%", up: true, color: "#9945ff" },
-  { symbol: "ADA", name: "Cardano", price: "0.6234", change: "-1.23%", up: false, color: "#0033ad" },
-  { symbol: "XRP", name: "Ripple", price: "0.5891", change: "+0.87%", up: true, color: "#23292f" },
+  { symbol: "BTC", name: "Bitcoin", price: 62540.20, change: 2.34, up: true, color: "#f7931a", category: "Major", volume: "1.2B", high: 63120, low: 61200 },
+  { symbol: "ETH", name: "Ethereum", price: 3122.80, change: 1.87, up: true, color: "#627eea", category: "Major", volume: "850M", high: 3150, low: 3080 },
+  { symbol: "BTG", name: "Bitcoin Gold", price: 38.52, change: -0.42, up: false, color: "#dba000", category: "Altcoin", volume: "45M", high: 39.10, low: 38.20 },
+  { symbol: "BTS", name: "BitShares", price: 0.0452, change: 3.12, up: true, color: "#00a9e0", category: "Altcoin", volume: "12M", high: 0.046, low: 0.044 },
+  { symbol: "USDT", name: "Tether", price: 1.0001, change: 0.01, up: true, color: "#26a17b", category: "Stablecoin", volume: "2.8B", high: 1.001, low: 0.999 },
+  { symbol: "SOL", name: "Solana", price: 148.30, change: 4.56, up: true, color: "#9945ff", category: "Major", volume: "320M", high: 152, low: 144 },
+  { symbol: "ADA", name: "Cardano", price: 0.6234, change: -1.23, up: false, color: "#0033ad", category: "Altcoin", volume: "180M", high: 0.635, low: 0.618 },
+  { symbol: "XRP", name: "Ripple", price: 0.5891, change: 0.87, up: true, color: "#23292f", category: "Major", volume: "210M", high: 0.595, low: 0.582 },
 ];
+
+const CATEGORIES = ["All", "Major", "Altcoin", "Stablecoin"];
 
 const FEATURES = [
   {
@@ -76,6 +73,10 @@ const STATS = [
 export function StorefrontPage() {
   const { setView, user } = useApp();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [selectedCoin, setSelectedCoin] = useState<typeof CRYPTOS[0] | null>(null);
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All");
+  const [watchlist, setWatchlist] = useState<string[]>(["BTC", "ETH"]);
 
   const goLogin = () => {
     setView("login");
@@ -85,6 +86,32 @@ export function StorefrontPage() {
   const goAdmin = () => {
     setView("admin");
     setMenuOpen(false);
+  };
+
+  const goRegister = () => {
+    setView("register");
+    setMenuOpen(false);
+  };
+
+  const toggleWatchlist = (symbol: string) => {
+    setWatchlist((prev) =>
+      prev.includes(symbol) ? prev.filter((s) => s !== symbol) : [...prev, symbol]
+    );
+  };
+
+  const filteredCryptos = useMemo(() => {
+    return CRYPTOS.filter((c) => {
+      const matchesSearch =
+        !search ||
+        c.symbol.toLowerCase().includes(search.toLowerCase()) ||
+        c.name.toLowerCase().includes(search.toLowerCase());
+      const matchesCategory = category === "All" || c.category === category;
+      return matchesSearch && matchesCategory;
+    });
+  }, [search, category]);
+
+  const openCoin = (coin: typeof CRYPTOS[0]) => {
+    setSelectedCoin(coin);
   };
 
   return (
@@ -281,17 +308,57 @@ export function StorefrontPage() {
       {/* ─── Markets ────────────────────────────────────────────── */}
       <section id="markets" className="py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="text-center mb-10">
+          <div className="text-center mb-8">
             <h2 className="text-3xl font-bold">
               Supported <span className="brock-text-gold">Markets</span>
             </h2>
             <p className="text-muted-foreground mt-2">
-              Trade the world&apos;s top cryptocurrencies with deep liquidity and tight spreads.
+              Trade the world&apos;s top cryptocurrencies. Click any card to view details and start trading.
             </p>
           </div>
+
+          {/* Search + Category filters */}
+          <div className="flex flex-wrap gap-2 mb-6">
+            <div className="relative flex-1 min-w-48">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search coins by name or symbol..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 rounded-md bg-input/40 border border-brock-gold/20 text-sm focus:outline-none focus:border-brock-gold/50"
+              />
+            </div>
+            <div className="flex gap-1 flex-wrap">
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setCategory(cat)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                    category === cat
+                      ? "brock-gradient-gold text-brock-navy"
+                      : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Crypto grid - clickable cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            {CRYPTOS.map((c) => (
-              <Card key={c.symbol} className="brock-card hover:brock-glow-gold transition-all cursor-default">
+            {filteredCryptos.length === 0 && (
+              <div className="col-span-full text-center py-8 text-muted-foreground">
+                No coins match your search
+              </div>
+            )}
+            {filteredCryptos.map((c) => (
+              <Card
+                key={c.symbol}
+                onClick={() => openCoin(c)}
+                className="brock-card hover:brock-glow-gold transition-all cursor-pointer group"
+              >
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
@@ -302,24 +369,67 @@ export function StorefrontPage() {
                         {c.symbol.slice(0, 1)}
                       </div>
                       <div>
-                        <div className="font-semibold text-sm">{c.symbol}</div>
+                        <div className="font-semibold text-sm group-hover:text-brock-gold transition-colors">{c.symbol}</div>
                         <div className="text-[10px] text-muted-foreground">{c.name}</div>
                       </div>
                     </div>
-                    {c.up ? (
-                      <TrendingUp className="h-4 w-4 text-emerald-400" />
-                    ) : (
-                      <TrendingUp className="h-4 w-4 text-destructive rotate-180" />
-                    )}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); toggleWatchlist(c.symbol); }}
+                      className="opacity-60 hover:opacity-100 transition-opacity"
+                      title={watchlist.includes(c.symbol) ? "Remove from watchlist" : "Add to watchlist"}
+                    >
+                      <Star className={`h-4 w-4 ${watchlist.includes(c.symbol) ? "fill-brock-gold text-brock-gold" : "text-muted-foreground"}`} />
+                    </button>
                   </div>
-                  <div className="text-lg font-bold">${c.price}</div>
-                  <div className={`text-xs ${c.up ? "text-emerald-400" : "text-destructive"}`}>
-                    {c.change}
+                  <div className="text-lg font-bold">${c.price.toLocaleString()}</div>
+                  <div className={`text-xs flex items-center gap-1 ${c.up ? "text-emerald-400" : "text-destructive"}`}>
+                    {c.up ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                    {c.up ? "+" : ""}{c.change}%
+                  </div>
+                  <div className="mt-2 pt-2 border-t border-border/40 flex justify-between text-[10px] text-muted-foreground">
+                    <span>Vol: ${c.volume}</span>
+                    <span className="text-brock-gold">Trade →</span>
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
+
+          {/* Watchlist section */}
+          {watchlist.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                <Star className="h-4 w-4 text-brock-gold fill-brock-gold" /> My Watchlist
+              </h3>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                {CRYPTOS.filter((c) => watchlist.includes(c.symbol)).map((c) => (
+                  <Card
+                    key={`wl-${c.symbol}`}
+                    onClick={() => openCoin(c)}
+                    className="brock-card hover:brock-glow-gold transition-all cursor-pointer"
+                  >
+                    <CardContent className="p-3 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-[10px]"
+                          style={{ background: `${c.color}20`, color: c.color }}
+                        >
+                          {c.symbol.slice(0, 1)}
+                        </div>
+                        <div>
+                          <div className="font-semibold text-xs">{c.symbol}</div>
+                          <div className="text-[10px] text-muted-foreground">${c.price.toLocaleString()}</div>
+                        </div>
+                      </div>
+                      <div className={`text-xs ${c.up ? "text-emerald-400" : "text-destructive"}`}>
+                        {c.up ? "+" : ""}{c.change}%
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -460,6 +570,17 @@ export function StorefrontPage() {
           </div>
         </div>
       </footer>
+
+      {/* ─── Coin Detail Dialog ─────────────────────────────────── */}
+      {selectedCoin && (
+        <CoinDetailDialog
+          coin={selectedCoin}
+          onClose={() => setSelectedCoin(null)}
+          onSignIn={() => { setSelectedCoin(null); goLogin(); }}
+          onRegister={() => { setSelectedCoin(null); goRegister(); }}
+          isAuthenticated={!!user}
+        />
+      )}
     </div>
   );
 }
@@ -489,5 +610,197 @@ function BrockLogo({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
         <text x="55" y="62" fontFamily="Geist, sans-serif" fontSize="38" fontWeight="900" fill="url(#storefrontBlue)">E</text>
       </svg>
     </div>
+  );
+}
+
+// ─── Coin Detail Dialog ──────────────────────────────────────────────────────
+
+function CoinDetailDialog({
+  coin, onClose, onSignIn, onRegister, isAuthenticated,
+}: {
+  coin: typeof CRYPTOS[0];
+  onClose: () => void;
+  onSignIn: () => void;
+  onRegister: () => void;
+  isAuthenticated: boolean;
+}) {
+  const [side, setSide] = useState<"BUY" | "SELL">("BUY");
+  const [amount, setAmount] = useState("");
+
+  const price = coin.price;
+  const stake = parseFloat(amount || "0");
+  const total = stake * price;
+
+  const handleTrade = () => {
+    if (!isAuthenticated) {
+      onSignIn();
+      return;
+    }
+    // If authenticated, they'd go to the admin/user dashboard trade section
+    onSignIn();
+  };
+
+  return (
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-full flex items-center justify-center font-bold"
+              style={{ background: `${coin.color}20`, color: coin.color }}
+            >
+              {coin.symbol.slice(0, 1)}
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                {coin.symbol}/USDT
+                <Badge variant="outline" className={coin.up ? "border-emerald-400/40 text-emerald-400" : "border-destructive/40 text-destructive"}>
+                  {coin.up ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
+                  {coin.up ? "+" : ""}{coin.change}%
+                </Badge>
+              </div>
+              <DialogDescription>{coin.name}</DialogDescription>
+            </div>
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          {/* Price + stats grid */}
+          <div className="grid grid-cols-4 gap-2">
+            <div className="rounded-md bg-muted/30 p-2">
+              <div className="text-[10px] text-muted-foreground">Price</div>
+              <div className="text-sm font-bold brock-text-gold">${price.toLocaleString()}</div>
+            </div>
+            <div className="rounded-md bg-muted/30 p-2">
+              <div className="text-[10px] text-muted-foreground">24h High</div>
+              <div className="text-sm font-semibold">${coin.high.toLocaleString()}</div>
+            </div>
+            <div className="rounded-md bg-muted/30 p-2">
+              <div className="text-[10px] text-muted-foreground">24h Low</div>
+              <div className="text-sm font-semibold">${coin.low.toLocaleString()}</div>
+            </div>
+            <div className="rounded-md bg-muted/30 p-2">
+              <div className="text-[10px] text-muted-foreground">Volume</div>
+              <div className="text-sm font-semibold">${coin.volume}</div>
+            </div>
+          </div>
+
+          {/* Mini chart */}
+          <div className="rounded-md brock-card p-3">
+            <div className="text-xs text-muted-foreground mb-2">Price movement (simulated)</div>
+            <div className="flex items-end gap-1 h-24">
+              {Array.from({ length: 24 }).map((_, i) => {
+                const base = 50;
+                const variance = Math.sin(i / 3) * 20 + (coin.up ? i : -i) * 1.5;
+                const h = Math.max(10, base + variance + Math.random() * 10);
+                return (
+                  <div
+                    key={i}
+                    className="flex-1 rounded-sm"
+                    style={{
+                      height: `${h}%`,
+                      background: coin.up ? "#1e90ff" : "#d4af37",
+                      opacity: 0.3 + (i / 24) * 0.7,
+                    }}
+                  />
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Trade form */}
+          {isAuthenticated ? (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => setSide("BUY")}
+                  className={`rounded-lg border p-2 text-sm font-semibold transition-all ${
+                    side === "BUY" ? "border-emerald-400/50 bg-emerald-400/10 text-emerald-400" : "border-border/40 bg-muted/20"
+                  }`}
+                >
+                  <ArrowDownLeft className="h-4 w-4 inline mr-1" /> BUY
+                </button>
+                <button
+                  onClick={() => setSide("SELL")}
+                  className={`rounded-lg border p-2 text-sm font-semibold transition-all ${
+                    side === "SELL" ? "border-destructive/50 bg-destructive/10 text-destructive" : "border-border/40 bg-muted/20"
+                  }`}
+                >
+                  <ArrowUpRight className="h-4 w-4 inline mr-1" /> SELL
+                </button>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Amount ({coin.symbol})</Label>
+                <Input
+                  type="number"
+                  step="0.0001"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="0.001"
+                />
+              </div>
+              <div className="rounded-md bg-muted/30 p-3 text-sm space-y-1">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Market Price</span>
+                  <span>${price.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between font-semibold">
+                  <span>Estimated Total</span>
+                  <span className="brock-text-gold">${total.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                </div>
+              </div>
+              <Button onClick={handleTrade} className="w-full brock-gradient-gold text-brock-navy font-semibold">
+                {side === "BUY" ? "Buy" : "Sell"} {coin.symbol} → Go to Trade
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="rounded-md bg-brock-gold/5 border border-brock-gold/20 p-3 text-sm text-center">
+                <p className="text-muted-foreground mb-1">Sign in to trade {coin.symbol}</p>
+                <p className="text-xs">You need an account to place buy/sell orders on Brock Exchange.</p>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Button onClick={onSignIn} className="brock-gradient-gold text-brock-navy font-semibold">
+                  Sign In
+                </Button>
+                <Button onClick={onRegister} variant="outline" className="border-brock-gold/30">
+                  Create Account
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Trade duration info */}
+          {isAuthenticated && (
+            <div className="rounded-md bg-muted/20 p-3 text-xs">
+              <div className="font-semibold mb-1 flex items-center gap-1">
+                <Clock className="h-3 w-3 text-brock-gold" /> Fixed-Time Trading Options
+              </div>
+              <div className="grid grid-cols-3 gap-2 mt-2">
+                <div className="text-center">
+                  <div className="text-brock-gold font-bold">+20%</div>
+                  <div className="text-[10px] text-muted-foreground">30 seconds</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-brock-gold font-bold">+30%</div>
+                  <div className="text-[10px] text-muted-foreground">60 seconds</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-brock-gold font-bold">+50%</div>
+                  <div className="text-[10px] text-muted-foreground">120 seconds</div>
+                </div>
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-2">
+                Potential returns are illustrative. Trade from the dashboard for full UP/DOWN fixed-time trading.
+              </p>
+            </div>
+          )}
+        </div>
+
+        <DialogFooter>
+          <Button variant="ghost" onClick={onClose}>Close</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

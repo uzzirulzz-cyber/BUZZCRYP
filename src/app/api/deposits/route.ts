@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     const cust = await db.customer.findUnique({ where: { id: customerId } });
     if (!cust) return NextResponse.json({ error: "Customer not found." }, { status: 404 });
 
-    const finalStatus = status === "REJECTED" ? "REJECTED" : "APPROVED";
+    const finalStatus = status === "PENDING" ? "PENDING" : status === "REJECTED" ? "REJECTED" : "APPROVED";
 
     // Create deposit + adjust wallet in a transaction
     const deposit = await db.$transaction(async (tx) => {

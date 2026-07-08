@@ -112,22 +112,44 @@ export function KycSection() {
                     <TableCell className="text-xs text-muted-foreground">{fmtRelative(r.createdAt)}</TableCell>
                     <TableCell className="text-xs text-muted-foreground">{r.user.lastLogin ? fmtRelative(r.user.lastLogin) : "Never"}</TableCell>
                     <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="h-4 w-4" /></Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => setStatusFn(r.id, "VERIFIED")} disabled={r.kycStatus === "VERIFIED"}>
-                            <CheckCircle2 className="h-4 w-4 mr-2" /> Verify
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setStatusFn(r.id, "REJECTED")} disabled={r.kycStatus === "REJECTED"}>
-                            <XCircle className="h-4 w-4 mr-2" /> Reject
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setStatusFn(r.id, "PENDING")} disabled={r.kycStatus === "PENDING"}>
-                            <Clock className="h-4 w-4 mr-2" /> Reset to Pending
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex items-center gap-1">
+                        {r.kycStatus === "PENDING" && (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-7 px-2 text-xs border-emerald-400/40 text-emerald-400 hover:bg-emerald-400/10"
+                              onClick={() => setStatusFn(r.id, "VERIFIED")}
+                            >
+                              <CheckCircle2 className="h-3 w-3 mr-1" /> Verify
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-7 px-2 text-xs border-destructive/40 text-destructive hover:bg-destructive/10"
+                              onClick={() => setStatusFn(r.id, "REJECTED")}
+                            >
+                              <XCircle className="h-3 w-3 mr-1" /> Reject
+                            </Button>
+                          </>
+                        )}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="h-4 w-4" /></Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => setStatusFn(r.id, "VERIFIED")} disabled={r.kycStatus === "VERIFIED"}>
+                              <CheckCircle2 className="h-4 w-4 mr-2" /> Verify
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setStatusFn(r.id, "REJECTED")} disabled={r.kycStatus === "REJECTED"}>
+                              <XCircle className="h-4 w-4 mr-2" /> Reject
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setStatusFn(r.id, "PENDING")} disabled={r.kycStatus === "PENDING"}>
+                              <Clock className="h-4 w-4 mr-2" /> Reset to Pending
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

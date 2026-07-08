@@ -176,23 +176,45 @@ export function DepositsSection() {
                     <TableCell className="text-xs text-muted-foreground">{fmtRelative(d.createdAt)}</TableCell>
                     <TableCell>
                       {isAdmin && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="h-4 w-4" /></Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => updateStatus(d.id, "APPROVED")} disabled={d.status === "APPROVED"}>
-                              <CheckCircle2 className="h-4 w-4 mr-2" /> Approve
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => updateStatus(d.id, "REJECTED")} disabled={d.status === "REJECTED"}>
-                              <XCircle className="h-4 w-4 mr-2" /> Reject
-                            </DropdownMenuItem>
+                        <div className="flex items-center gap-1">
+                          {d.status === "PENDING" && (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 px-2 text-xs border-emerald-400/40 text-emerald-400 hover:bg-emerald-400/10"
+                                onClick={() => updateStatus(d.id, "APPROVED")}
+                              >
+                                <CheckCircle2 className="h-3 w-3 mr-1" /> Approve
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 px-2 text-xs border-destructive/40 text-destructive hover:bg-destructive/10"
+                                onClick={() => updateStatus(d.id, "REJECTED")}
+                              >
+                                <XCircle className="h-3 w-3 mr-1" /> Reject
+                              </Button>
+                            </>
+                          )}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="h-4 w-4" /></Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => updateStatus(d.id, "APPROVED")} disabled={d.status === "APPROVED"}>
+                                <CheckCircle2 className="h-4 w-4 mr-2" /> Approve
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => updateStatus(d.id, "REJECTED")} disabled={d.status === "REJECTED"}>
+                                <XCircle className="h-4 w-4 mr-2" /> Reject
+                              </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => remove(d.id)} className="text-destructive focus:text-destructive">
                               <Trash2 className="h-4 w-4 mr-2" /> Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
+                        </div>
                       )}
                     </TableCell>
                   </TableRow>
