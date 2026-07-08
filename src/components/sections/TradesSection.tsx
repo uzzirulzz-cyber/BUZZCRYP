@@ -390,20 +390,20 @@ function CreateTradeForm({ onCreated }: { onCreated: () => void }) {
               onClick={() => setDirection("UP")}
               className={`rounded-lg border p-3 flex flex-col items-center gap-1 transition-all ${
                 direction === "UP"
-                  ? "border-brock-gold/50 bg-brock-gold/10 brock-glow-gold"
+                  ? "brock-buy-up"
                   : "border-border/40 bg-muted/20 hover:border-brock-gold/30"
               }`}
             >
-              <TrendingUp className={`h-5 w-5 ${direction === "UP" ? "text-brock-gold" : "text-muted-foreground"}`} />
+              <TrendingUp className={`h-5 w-5 ${direction === "UP" ? "text-white" : "text-muted-foreground"}`} />
               <span className="text-sm font-semibold">UP</span>
-              <span className="text-[10px] text-muted-foreground">Price goes higher</span>
+              <span className="text-[10px] opacity-80">Price goes higher</span>
             </button>
             <button
               type="button"
               onClick={() => setDirection("DOWN")}
               className={`rounded-lg border p-3 flex flex-col items-center gap-1 transition-all ${
                 direction === "DOWN"
-                  ? "border-brock-blue/50 bg-brock-blue/10 brock-glow-blue"
+                  ? "brock-buy-down"
                   : "border-border/40 bg-muted/20 hover:border-brock-blue/30"
               }`}
             >

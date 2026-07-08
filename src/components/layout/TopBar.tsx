@@ -57,8 +57,8 @@ export function TopBar() {
   };
 
   return (
-    <header className="sticky top-0 z-30 border-b border-brock-gold/15 bg-sidebar/80 backdrop-blur-md">
-      <div className="px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-30 brock-nav" style={{ height: "75px" }}>
+      <div className="px-4 sm:px-6 h-full flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <BlockExchangeLogo size="sm" />
           <div className="hidden sm:block">

@@ -118,8 +118,8 @@ export function StorefrontPage() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* ─── Navbar ─────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 border-b border-brock-gold/15 bg-brock-navy/80 backdrop-blur-md">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 h-16 flex items-center justify-between">
+      <header className="sticky top-0 z-50 brock-nav" style={{ height: "75px" }}>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 h-full flex items-center justify-between">
           <button onClick={() => setView("storefront")} className="flex items-center gap-3">
             <BlockExchangeLogo size="sm" />
             <BlockExchangeWordmark size="md" />
@@ -172,19 +172,19 @@ export function StorefrontPage() {
       </header>
 
       {/* ─── Hero ───────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden" style={{ background: "radial-gradient(circle at top, #1b2238 0%, #07090f 70%)", padding: "90px 0" }}>
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute left-1/4 top-20 w-96 h-96 bg-brock-gold/5 rounded-full blur-3xl" />
-          <div className="absolute right-1/4 bottom-20 w-96 h-96 bg-brock-blue/5 rounded-full blur-3xl" />
+          <div className="absolute left-1/4 top-20 w-96 h-96 rounded-full blur-3xl" style={{ background: "rgba(245, 180, 0, 0.08)" }} />
+          <div className="absolute right-1/4 bottom-20 w-96 h-96 rounded-full blur-3xl" style={{ background: "rgba(0, 229, 255, 0.08)" }} />
         </div>
 
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24">
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <Badge variant="outline" className="border-brock-gold/40 text-brock-gold">
                 <Hexagon className="h-3 w-3 mr-1" /> Secure Institutional Trading
               </Badge>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight" style={{ fontSize: "60px" }}>
                 Trade Smarter.
                 <br />
                 <span className="brock-text-gold">Grow Faster.</span>

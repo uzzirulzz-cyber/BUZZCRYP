@@ -3,8 +3,8 @@
 /**
  * BlockExchange.Buzz brand components.
  *
- * Logo: gold "B" + silver "E" interlocked, with bidirectional arrows
- * (gold/silver) forming an exchange symbol, plus three candlestick icons.
+ * Logo: gold "B" + cyan "E" interlocked, with bidirectional arrows
+ * (gold/cyan) forming an exchange symbol, plus three candlestick icons.
  * Wordmark: BLOCKEXCHANGE (white BLOCK + gold EXCHANGE) with .BUZZ below.
  * Tagline: TRADE SMARTER. GROW FASTER.
  */
@@ -23,28 +23,28 @@ export function BlockExchangeLogo({ size = "md" }: { size?: LogoSize }) {
       <svg viewBox="0 0 100 100" className="w-full h-full">
         <defs>
           <linearGradient id={`${gid}-gold`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#f5d27a" />
-            <stop offset="100%" stopColor="#d4af37" />
+            <stop offset="0%" stopColor="#ffd54f" />
+            <stop offset="100%" stopColor="#f5b400" />
           </linearGradient>
-          <linearGradient id={`${gid}-silver`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#e8edf2" />
-            <stop offset="100%" stopColor="#b8c2cc" />
+          <linearGradient id={`${gid}-cyan`} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#00e5ff" />
+            <stop offset="100%" stopColor="#00b8d4" />
           </linearGradient>
         </defs>
         {/* Thin gold arc curving above B and E */}
         <path d="M 18 38 A 38 38 0 0 1 82 38" fill="none" stroke={`url(#${gid}-gold)`} strokeWidth="2.5" strokeLinecap="round" />
         {/* B (gold) */}
         <text x="18" y="62" fontFamily="Geist, sans-serif" fontSize="32" fontWeight="900" fill={`url(#${gid}-gold)`}>B</text>
-        {/* E (silver) */}
-        <text x="50" y="62" fontFamily="Geist, sans-serif" fontSize="32" fontWeight="900" fill={`url(#${gid}-silver)`}>E</text>
-        {/* Bidirectional arrows: gold arrow up-right, silver arrow down-left */}
+        {/* E (cyan) */}
+        <text x="50" y="62" fontFamily="Geist, sans-serif" fontSize="32" fontWeight="900" fill={`url(#${gid}-cyan)`}>E</text>
+        {/* Bidirectional arrows: gold arrow up-right, cyan arrow down-left */}
         <path d="M 22 66 L 48 40 M 48 40 L 40 40 M 48 40 L 48 48" stroke={`url(#${gid}-gold)`} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M 78 34 L 52 60 M 52 60 L 60 60 M 52 60 L 52 52" stroke={`url(#${gid}-silver)`} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M 78 34 L 52 60 M 52 60 L 60 60 M 52 60 L 52 52" stroke={`url(#${gid}-cyan)`} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
         {/* Three candlestick charts on the right */}
         <rect x="70" y="66" width="4" height="10" fill={`url(#${gid}-gold)`} rx="1" />
         <line x1="72" y1="62" x2="72" y2="80" stroke={`url(#${gid}-gold)`} strokeWidth="1" />
-        <rect x="78" y="68" width="4" height="8" fill={`url(#${gid}-silver)`} rx="1" />
-        <line x1="80" y1="64" x2="80" y2="80" stroke={`url(#${gid}-silver)`} strokeWidth="1" />
+        <rect x="78" y="68" width="4" height="8" fill={`url(#${gid}-cyan)`} rx="1" />
+        <line x1="80" y1="64" x2="80" y2="80" stroke={`url(#${gid}-cyan)`} strokeWidth="1" />
         <rect x="86" y="64" width="4" height="12" fill={`url(#${gid}-gold)`} rx="1" />
         <line x1="88" y1="60" x2="88" y2="80" stroke={`url(#${gid}-gold)`} strokeWidth="1" />
       </svg>
