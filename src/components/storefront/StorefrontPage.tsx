@@ -16,6 +16,7 @@ import {
   Menu, X, Search, Star, ArrowDownLeft, ArrowUpRight, Clock,
 } from "lucide-react";
 import { useState, useMemo } from "react";
+import { BlockExchangeLogo, BlockExchangeWordmark, BlockExchangeTagline } from "@/components/brand/BlockExchangeLogo";
 
 const CRYPTOS = [
   { symbol: "BTC", name: "Bitcoin", price: 62540.20, change: 2.34, up: true, color: "#f7931a", category: "Major", volume: "1.2B", high: 63120, low: 61200 },
@@ -120,17 +121,8 @@ export function StorefrontPage() {
       <header className="sticky top-0 z-50 border-b border-brock-gold/15 bg-brock-navy/80 backdrop-blur-md">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 h-16 flex items-center justify-between">
           <button onClick={() => setView("storefront")} className="flex items-center gap-3">
-            <BrockLogo size="sm" />
-            <div>
-              <div className="text-lg font-bold leading-tight">
-                <span className="text-white">BROCK</span>
-                <span className="brock-text-gold">EX</span>
-                <span className="text-brock-blue">CHANGE</span>
-              </div>
-              <div className="text-[9px] tracking-widest text-muted-foreground leading-tight">
-                TRADE SMART. INVEST BETTER.
-              </div>
-            </div>
+            <BlockExchangeLogo size="sm" />
+            <BlockExchangeWordmark size="md" />
           </button>
 
           <nav className="hidden md:flex items-center gap-6 text-sm">
@@ -193,12 +185,12 @@ export function StorefrontPage() {
                 <Hexagon className="h-3 w-3 mr-1" /> Secure Institutional Trading
               </Badge>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
-                Trade Smart.
+                Trade Smarter.
                 <br />
-                <span className="brock-text-gold">Invest Better.</span>
+                <span className="brock-text-gold">Grow Faster.</span>
               </h1>
               <p className="text-lg text-muted-foreground max-w-lg leading-relaxed">
-                Brock Exchange is a secure, role-based crypto trading platform with
+                BlockExchange.Buzz is a secure, role-based crypto trading platform with
                 multi-tenant isolation, full audit trails, and bank-grade security.
                 Built for institutions that demand control and transparency.
               </p>
@@ -438,7 +430,7 @@ export function StorefrontPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold">
-              Why <span className="brock-text-gold">Brock Exchange</span>?
+              Why <span className="brock-text-gold">BlockExchange.Buzz</span>?
             </h2>
             <p className="text-muted-foreground mt-2">
               A trading platform engineered for security, compliance, and institutional control.
@@ -550,20 +542,11 @@ export function StorefrontPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <BrockLogo size="sm" />
-              <div>
-                <div className="text-sm font-bold">
-                  <span className="text-white">BROCK</span>
-                  <span className="brock-text-gold">EX</span>
-                  <span className="text-brock-blue">CHANGE</span>
-                </div>
-                <div className="text-[10px] tracking-widest text-muted-foreground">
-                  TRADE SMART. INVEST BETTER.
-                </div>
-              </div>
+              <BlockExchangeLogo size="sm" />
+              <BlockExchangeWordmark size="sm" />
             </div>
             <div className="text-xs text-muted-foreground text-center sm:text-right">
-              © 2026 Brock Exchange. All rights reserved.
+              © 2026 BlockExchange.Buzz. All rights reserved.
               <br />
               <span className="text-brock-blue">Authorized access only.</span>
             </div>
@@ -581,34 +564,6 @@ export function StorefrontPage() {
           isAuthenticated={!!user}
         />
       )}
-    </div>
-  );
-}
-
-function BrockLogo({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
-  const dims = size === "lg" ? "w-14 h-14" : size === "sm" ? "w-8 h-8" : "w-10 h-10";
-  return (
-    <div className={`relative ${dims}`}>
-      <svg viewBox="0 0 100 100" className="w-full h-full">
-        <defs>
-          <linearGradient id="storefrontGold" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#f5d27a" />
-            <stop offset="100%" stopColor="#d4af37" />
-          </linearGradient>
-          <linearGradient id="storefrontBlue" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#4fa9ff" />
-            <stop offset="100%" stopColor="#1e90ff" />
-          </linearGradient>
-        </defs>
-        <polygon
-          points="50,5 90,27 90,73 50,95 10,73 10,27"
-          fill="none"
-          stroke="url(#storefrontGold)"
-          strokeWidth="3"
-        />
-        <text x="32" y="62" fontFamily="Geist, sans-serif" fontSize="38" fontWeight="900" fill="url(#storefrontGold)">B</text>
-        <text x="55" y="62" fontFamily="Geist, sans-serif" fontSize="38" fontWeight="900" fill="url(#storefrontBlue)">E</text>
-      </svg>
     </div>
   );
 }
@@ -757,7 +712,7 @@ function CoinDetailDialog({
             <div className="space-y-3">
               <div className="rounded-md bg-brock-gold/5 border border-brock-gold/20 p-3 text-sm text-center">
                 <p className="text-muted-foreground mb-1">Sign in to trade {coin.symbol}</p>
-                <p className="text-xs">You need an account to place buy/sell orders on Brock Exchange.</p>
+                <p className="text-xs">You need an account to place buy/sell orders on BlockExchange.Buzz.</p>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <Button onClick={onSignIn} className="brock-gradient-gold text-brock-navy font-semibold">

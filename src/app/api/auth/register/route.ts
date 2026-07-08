@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
       data: {
         recipientId: user.id,
         createdById: session?.id ?? user.id,
-        title: "Welcome to Brock Exchange",
+        title: "Welcome to BlockExchange.Buzz",
         body: `Your account has been created successfully. Your UID is ${uid}. You were invited by Sub-Agent with code ${core.invitationCode}.`,
         type: "INFO",
       },

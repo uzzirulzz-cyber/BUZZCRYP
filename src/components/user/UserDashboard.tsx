@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useApp } from "@/lib/store";
 import { fmtMoney, fmtNum, fmtDate, fmtRelative } from "@/lib/format";
 import { StatusBadge } from "@/components/sections/DashboardSection";
+import { BlockExchangeLogo, BlockExchangeWordmark } from "@/components/brand/BlockExchangeLogo";
 import {
   Wallet, Snowflake, TrendingUp, TrendingDown, ArrowDownToLine, ArrowUpFromLine,
   CandlestickChart, Bell, User as UserIcon, Award, Percent, Activity,
@@ -310,25 +311,9 @@ function UserTopBar() {
     <header className="sticky top-0 z-30 border-b border-brock-gold/15 bg-sidebar/80 backdrop-blur-md">
       <div className="px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         <button onClick={() => setView("storefront")} className="flex items-center gap-3">
-          <div className="relative w-8 h-8">
-            <svg viewBox="0 0 100 100" className="w-full h-full">
-              <defs>
-                <linearGradient id="userGold" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#f5d27a" /><stop offset="100%" stopColor="#d4af37" />
-                </linearGradient>
-                <linearGradient id="userBlue" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#4fa9ff" /><stop offset="100%" stopColor="#1e90ff" />
-                </linearGradient>
-              </defs>
-              <polygon points="50,5 90,27 90,73 50,95 10,73 10,27" fill="none" stroke="url(#userGold)" strokeWidth="3" />
-              <text x="32" y="62" fontFamily="Geist, sans-serif" fontSize="38" fontWeight="900" fill="url(#userGold)">B</text>
-              <text x="55" y="62" fontFamily="Geist, sans-serif" fontSize="38" fontWeight="900" fill="url(#userBlue)">E</text>
-            </svg>
-          </div>
+          <BlockExchangeLogo size="sm" />
           <div className="hidden sm:block">
-            <div className="text-sm font-bold leading-tight">
-              <span className="text-white">BROCK</span><span className="brock-text-gold">EX</span><span className="text-brock-blue">CHANGE</span>
-            </div>
+            <BlockExchangeWordmark size="sm" />
             <div className="text-[10px] text-muted-foreground leading-tight">User Dashboard</div>
           </div>
         </button>

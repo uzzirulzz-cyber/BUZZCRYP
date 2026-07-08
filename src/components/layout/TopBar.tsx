@@ -25,35 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-export function BrockLogo({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
-  const dims =
-    size === "lg" ? "w-14 h-14" : size === "sm" ? "w-7 h-7" : "w-10 h-10";
-  return (
-    <div className={`relative ${dims}`}>
-      <svg viewBox="0 0 100 100" className="w-full h-full">
-        <defs>
-          <linearGradient id="goldGradH" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#f5d27a" />
-            <stop offset="100%" stopColor="#d4af37" />
-          </linearGradient>
-          <linearGradient id="blueGradH" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#4fa9ff" />
-            <stop offset="100%" stopColor="#1e90ff" />
-          </linearGradient>
-        </defs>
-        <polygon
-          points="50,5 90,27 90,73 50,95 10,73 10,27"
-          fill="none"
-          stroke="url(#goldGradH)"
-          strokeWidth="3"
-        />
-        <text x="32" y="62" fontFamily="Geist, sans-serif" fontSize="38" fontWeight="900" fill="url(#goldGradH)">B</text>
-        <text x="55" y="62" fontFamily="Geist, sans-serif" fontSize="38" fontWeight="900" fill="url(#blueGradH)">E</text>
-      </svg>
-    </div>
-  );
-}
+import { BlockExchangeLogo, BlockExchangeWordmark } from "@/components/brand/BlockExchangeLogo";
 
 export function TopBar() {
   const { user, logout } = useApp();
@@ -88,16 +60,9 @@ export function TopBar() {
     <header className="sticky top-0 z-30 border-b border-brock-gold/15 bg-sidebar/80 backdrop-blur-md">
       <div className="px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <BrockLogo size="sm" />
+          <BlockExchangeLogo size="sm" />
           <div className="hidden sm:block">
-            <div className="text-sm font-bold leading-tight">
-              <span className="text-white">BROCK</span>
-              <span className="brock-text-gold">EX</span>
-              <span className="text-brock-blue">CHANGE</span>
-            </div>
-            <div className="text-[10px] tracking-widest text-muted-foreground leading-tight">
-              TRADE SMART. INVEST BETTER.
-            </div>
+            <BlockExchangeWordmark size="sm" />
           </div>
         </div>
 

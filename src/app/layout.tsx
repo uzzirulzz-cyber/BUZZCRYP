@@ -15,11 +15,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Brock Exchange — Secure Trading Platform",
+  title: "BlockExchange.Buzz — Trade Smarter. Grow Faster.",
   description:
-    "Brock Exchange — Trade Smart. Invest Better. Secure role-based crypto trading platform with multi-tenant isolation.",
-  keywords: ["Brock Exchange", "crypto", "trading", "wallet", "secure", "RBAC"],
-  authors: [{ name: "Brock Exchange" }],
+    "BlockExchange.Buzz — Secure crypto trading platform. Trade smarter, grow faster. Role-based access, multi-tenant isolation, full audit trails.",
+  keywords: ["BlockExchange", "BlockExchange.Buzz", "crypto", "trading", "exchange", "wallet", "secure", "RBAC"],
+  authors: [{ name: "BlockExchange.Buzz" }],
   icons: {
     icon: "/favicon.ico",
   },

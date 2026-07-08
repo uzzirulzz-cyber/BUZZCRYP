@@ -69,7 +69,7 @@ export function AppShell() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-3">
           <div className="w-14 h-14 mx-auto rounded-full border-2 border-brock-gold/30 border-t-brock-gold animate-spin" />
-          <div className="text-sm text-muted-foreground">Loading Brock Exchange...</div>
+          <div className="text-sm text-muted-foreground">Loading BlockExchange.Buzz...</div>
         </div>
       </div>
     );

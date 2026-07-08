@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useApp } from "@/lib/store";
 import { toast } from "sonner";
+import { BlockExchangeLogo, BlockExchangeWordmark } from "@/components/brand/BlockExchangeLogo";
 
 export function LoginForm() {
   const refreshUser = useApp((s) => s.refreshUser);
@@ -33,7 +34,7 @@ export function LoginForm() {
         toast.error(data.error || "Login failed");
         return;
       }
-      toast.success("Welcome back to Brock Exchange");
+      toast.success("Welcome back to BlockExchange.Buzz");
       await refreshUser();
       // Redirect based on role
       const u = useApp.getState().user;
@@ -84,17 +85,8 @@ export function LoginForm() {
         </div>
 
         <div className="relative z-10 flex items-center gap-3">
-          <BrockLogo />
-          <div>
-            <div className="text-2xl font-bold tracking-tight">
-              <span className="text-white">BROCK</span>
-              <span className="brock-text-gold">EX</span>
-              <span className="text-brock-blue">CHANGE</span>
-            </div>
-            <div className="text-xs text-muted-foreground tracking-widest">
-              TRADE SMART. INVEST BETTER.
-            </div>
-          </div>
+          <BlockExchangeLogo size="lg" />
+          <BlockExchangeWordmark size="md" />
         </div>
 
         <div className="relative z-10 space-y-6">
@@ -128,7 +120,7 @@ export function LoginForm() {
         </div>
 
         <div className="relative z-10 text-xs text-muted-foreground">
-          © 2026 Brock Exchange. All rights reserved.
+          © 2026 BlockExchange.Buzz. All rights reserved.
         </div>
       </div>
 
@@ -136,12 +128,8 @@ export function LoginForm() {
       <div className="flex-1 flex items-center justify-center p-6 sm:p-12">
         <div className="w-full max-w-md space-y-6">
           <div className="lg:hidden flex flex-col items-center gap-2 mb-4">
-            <BrockLogo />
-            <div className="text-xl font-bold tracking-tight">
-              <span className="text-white">BROCK</span>
-              <span className="brock-text-gold">EX</span>
-              <span className="text-brock-blue">CHANGE</span>
-            </div>
+            <BlockExchangeLogo size="md" />
+            <BlockExchangeWordmark size="sm" />
           </div>
 
           <div className="space-y-1">
@@ -237,50 +225,3 @@ export function LoginForm() {
   );
 }
 
-function BrockLogo() {
-  return (
-    <div className="relative w-14 h-14">
-      <svg viewBox="0 0 100 100" className="w-full h-full">
-        <defs>
-          <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#f5d27a" />
-            <stop offset="100%" stopColor="#d4af37" />
-          </linearGradient>
-          <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#4fa9ff" />
-            <stop offset="100%" stopColor="#1e90ff" />
-          </linearGradient>
-        </defs>
-        {/* Hexagon outer */}
-        <polygon
-          points="50,5 90,27 90,73 50,95 10,73 10,27"
-          fill="none"
-          stroke="url(#goldGrad)"
-          strokeWidth="3"
-        />
-        {/* B */}
-        <text
-          x="32"
-          y="62"
-          fontFamily="Geist, sans-serif"
-          fontSize="38"
-          fontWeight="900"
-          fill="url(#goldGrad)"
-        >
-          B
-        </text>
-        {/* E */}
-        <text
-          x="55"
-          y="62"
-          fontFamily="Geist, sans-serif"
-          fontSize="38"
-          fontWeight="900"
-          fill="url(#blueGrad)"
-        >
-          E
-        </text>
-      </svg>
-    </div>
-  );
-}

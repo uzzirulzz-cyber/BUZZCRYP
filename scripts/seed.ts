@@ -2,6 +2,10 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 
+// Force-load .env to override any stale system DATABASE_URL
+import { config } from "dotenv";
+config({ path: __dirname + "/../.env", override: true });
+
 const prisma = new PrismaClient();
 
 function generateUid(): string {
@@ -24,7 +28,7 @@ const DEFAULT_CORES = [
 ];
 
 async function main() {
-  console.log("🌱 Seeding Brock Exchange database...");
+  console.log("🌱 Seeding BlockExchange.Buzz database...");
 
   const defaultHash = await bcrypt.hash("default", 12);
   const superAdminHash = await bcrypt.hash("123playbeat", 12);
@@ -183,7 +187,7 @@ async function main() {
         data: {
           recipientId: cu.id,
           createdById: superAdmin.id,
-          title: "Welcome to Brock Exchange",
+          title: "Welcome to BlockExchange.Buzz",
           body: `Your account has been created. UID: ${cu.uid}. Use invitation code ${core.invitationCode}.`,
           type: "INFO",
         },

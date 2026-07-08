@@ -45,8 +45,8 @@ export function SettingsSection() {
             <CardDescription>Current session and platform metadata</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
-            <Info label="Platform name" value="Brock Exchange" />
-            <Info label="Tagline" value="Trade Smart. Invest Better." />
+            <Info label="Platform name" value="BlockExchange.Buzz" />
+            <Info label="Tagline" value="Trade Smarter. Grow Faster." />
             <Info label="Version" value="1.0.0" />
             <Info label="Your role" value={user?.role || "—"} />
             <Info label="Your email" value={user?.email || "—"} />
