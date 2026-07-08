@@ -219,7 +219,7 @@ export function SettingsSection() {
               {resetting ? (
                 <><RefreshCw className="h-4 w-4 mr-2 animate-spin" /> Resetting...</>
               ) : (
-                <><Trash2 className="h-4 w-4 mr-2" /> Reset Platform
+                <><Trash2 className="h-4 w-4 mr-2" /> Reset Platform</>
               )}
             </Button>
           </DialogFooter>

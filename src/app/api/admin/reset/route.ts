@@ -19,8 +19,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    // Capture session info BEFORE deleting the user
+    const sessionUserId = session.id;
+    const sessionEmail = session.email;
+    const { ip, device } = {
+      ip: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown",
+      device: req.headers.get("user-agent") || "unknown",
+    };
+
     // ⚠️ DESTRUCTIVE OPERATION — wipe all tables in dependency order
-    // Delete child tables first, then parent tables
     await db.$transaction([
       db.notification.deleteMany({}),
       db.walletAdjustment.deleteMany({}),
@@ -84,12 +91,16 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    await audit(
-      session.id,
-      "PLATFORM_RESET",
-      req,
-      "Platform reset to defaults. All demo/dummy data wiped. Re-seeded with Super Admin + 5 Sub-Agents only.",
-    );
+    // Log the audit entry using the NEW Super Admin's ID (since the old one was deleted)
+    await db.auditLog.create({
+      data: {
+        userId: superAdmin.id,
+        action: "PLATFORM_RESET",
+        ip,
+        device,
+        detail: `Platform reset by ${sessionEmail}. All demo/dummy data wiped. Re-seeded with Super Admin + 5 Sub-Agents only.`,
+      },
+    });
 
     return NextResponse.json({
       success: true,
