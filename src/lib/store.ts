@@ -13,7 +13,7 @@ export type SessionUser = {
   accountStatus: string;
 };
 
-export type View = "storefront" | "login" | "admin";
+export type View = "storefront" | "login" | "register" | "admin" | "user-dashboard" | "agent-panel";
 
 export type AdminSection =
   | "dashboard"
@@ -69,12 +69,18 @@ function readView(): View {
   // Path takes priority
   if (path === "/home" || path === "/") return "storefront";
   if (path === "/login") return "login";
+  if (path === "/register") return "register";
   if (path === "/admin") return "admin";
+  if (path === "/dashboard") return "user-dashboard";
+  if (path === "/agent") return "agent-panel";
 
   // Hash fallback (backwards compat)
   if (hash === "login") return "login";
+  if (hash === "register") return "register";
   if (hash === "admin") return "admin";
   if (hash === "storefront" || hash === "home") return "storefront";
+  if (hash === "dashboard") return "user-dashboard";
+  if (hash === "agent") return "agent-panel";
 
   return "storefront";
 }
@@ -84,7 +90,10 @@ function writeView(v: View) {
   const pathFor: Record<View, string> = {
     storefront: "/home",
     login: "/login",
+    register: "/register",
     admin: "/admin",
+    "user-dashboard": "/dashboard",
+    "agent-panel": "/agent",
   };
   const target = pathFor[v];
   if (window.location.pathname !== target) {

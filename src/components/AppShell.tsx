@@ -4,9 +4,12 @@ import { useEffect } from "react";
 import { useApp } from "@/lib/store";
 import { StorefrontPage } from "@/components/storefront/StorefrontPage";
 import { LoginForm } from "@/components/auth/LoginForm";
+import { RegisterForm } from "@/components/auth/RegisterForm";
 import { ForceChangePassword } from "@/components/auth/ForceChangePassword";
 import { TopBar } from "@/components/layout/TopBar";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { UserDashboard } from "@/components/user/UserDashboard";
+import { AgentPanel } from "@/components/agent/AgentPanel";
 import { DashboardSection } from "@/components/sections/DashboardSection";
 import { CustomersSection } from "@/components/sections/CustomersSection";
 import { CoresSection } from "@/components/sections/CoresSection";
@@ -44,14 +47,16 @@ export function AppShell() {
   // ─── Admin view: requires authentication ─────────────────────
   if (view === "admin") {
     if (!user) {
-      // Not authenticated — bounce to login
       return <LoginForm />;
     }
-    // Authenticated but must change password → forced password change screen
     if (user.mustChangePassword) {
       return <ForceChangePassword />;
     }
-    // Authenticated admin dashboard
+    // Only Super Admin and Core can access /admin
+    if (user.role === "CUSTOMER") {
+      // Customers should go to user dashboard
+      return <UserDashboard />;
+    }
     return (
       <div className="min-h-screen flex flex-col">
         <TopBar />
@@ -67,17 +72,66 @@ export function AppShell() {
     );
   }
 
-  // ─── Login view ───────────────────────────────────────────────
-  if (view === "login") {
-    // If already authenticated, go straight to admin
-    if (user) {
+  // ─── User Dashboard view ─────────────────────────────────────
+  if (view === "user-dashboard") {
+    if (!user) return <LoginForm />;
+    if (user.mustChangePassword) return <ForceChangePassword />;
+    if (user.role === "CORE") {
+      // Cores see agent panel
+      return <AgentPanel />;
+    }
+    if (user.role === "SUPER_ADMIN") {
+      // Super Admin sees admin dashboard
+      return (
+        <div className="min-h-screen flex flex-col">
+          <TopBar />
+          <div className="flex-1 flex">
+            <Sidebar />
+            <main className="flex-1 min-w-0 p-4 sm:p-6 max-w-full">
+              <div className="mx-auto max-w-7xl">{renderSection(section, user.role)}</div>
+            </main>
+          </div>
+        </div>
+      );
+    }
+    return <UserDashboard />;
+  }
+
+  // ─── Agent Panel view ────────────────────────────────────────
+  if (view === "agent-panel") {
+    if (!user) return <LoginForm />;
+    if (user.mustChangePassword) return <ForceChangePassword />;
+    if (user.role === "CORE") return <AgentPanel />;
+    // Non-cores redirect to their proper dashboard
+    if (user.role === "SUPER_ADMIN") {
       setView("admin");
+      return null;
+    }
+    return <UserDashboard />;
+  }
+
+  // ─── Login view ──────────────────────────────────────────────
+  if (view === "login") {
+    if (user) {
+      // Redirect based on role
+      if (user.role === "CUSTOMER") setView("user-dashboard");
+      else if (user.role === "CORE") setView("agent-panel");
+      else setView("admin");
       return null;
     }
     return <LoginForm />;
   }
 
-  // ─── Storefront view (default) ────────────────────────────────
+  // ─── Register view ───────────────────────────────────────────
+  if (view === "register") {
+    if (user) {
+      setView("storefront");
+      return null;
+    }
+    return <RegisterForm />;
+  }
+
+  // ─── Storefront view (default) ───────────────────────────────
   return <StorefrontPage />;
 }
 

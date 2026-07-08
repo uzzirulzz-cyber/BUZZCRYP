@@ -35,9 +35,11 @@ export function LoginForm() {
       }
       toast.success("Welcome back to Brock Exchange");
       await refreshUser();
-      // The refreshUser sets view to 'admin' when user is present.
-      // But also set it explicitly here for immediate response.
-      useApp.getState().setView("admin");
+      // Redirect based on role
+      const u = useApp.getState().user;
+      if (u?.role === "CUSTOMER") useApp.getState().setView("user-dashboard");
+      else if (u?.role === "CORE") useApp.getState().setView("agent-panel");
+      else useApp.getState().setView("admin");
     } catch {
       toast.error("Network error. Try again.");
     } finally {
@@ -209,6 +211,17 @@ export function LoginForm() {
               administrator. Accounts provisioned with a temporary password must change it on first login
               before the dashboard becomes available.
             </div>
+          </div>
+
+          <div className="text-center text-sm text-muted-foreground">
+            Don&apos;t have an account?{" "}
+            <button
+              type="button"
+              onClick={() => useApp.getState().setView("register")}
+              className="text-brock-gold hover:underline font-medium"
+            >
+              Create account
+            </button>
           </div>
 
           <button

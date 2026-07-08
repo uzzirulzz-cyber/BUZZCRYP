@@ -1,17 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { audit, getClientInfo, hashPassword, requireSession } from "@/lib/auth";
+import { audit, generateUid, getClientInfo, hashPassword, requireSession } from "@/lib/auth";
+import { randomBytes } from "crypto";
+
+function generateReferralCode(name: string): string {
+  const slug = name.replace(/[^a-zA-Z0-9]/g, "").slice(0, 4).toUpperCase();
+  return `${slug}-${randomBytes(2).toString("hex").toUpperCase()}`;
+}
 
 // POST /api/auth/register
 // Customer self-registration using an invitation code.
-// Body: { name, email, password, invitationCode }
+// Body: { name, email, mobile, password, invitationCode }
 export async function POST(req: NextRequest) {
   const { ip, device } = getClientInfo(req);
   try {
     const body = await req.json().catch(() => ({}));
-    const { name, email, password, invitationCode } = body as {
+    const { name, email, mobile, password, invitationCode } = body as {
       name?: string;
       email?: string;
+      mobile?: string;
       password?: string;
       invitationCode?: string;
     };
@@ -49,7 +56,7 @@ export async function POST(req: NextRequest) {
     }
     if (core.user.accountStatus !== "ACTIVE") {
       return NextResponse.json(
-        { error: "Owning Core account is not active." },
+        { error: "Owning Sub-Agent account is not active." },
         { status: 400 },
       );
     }
@@ -61,12 +68,15 @@ export async function POST(req: NextRequest) {
     }
 
     const hash = await hashPassword(password);
+    const uid = generateUid();
 
     // Atomic create: user + customer record. Assignment to Core is permanent.
     const user = await db.user.create({
       data: {
+        uid,
         name,
         email: normalizedEmail,
+        mobile: mobile || null,
         passwordHash: hash,
         role: "CUSTOMER",
         mustChangePassword: false,
@@ -75,7 +85,9 @@ export async function POST(req: NextRequest) {
           create: {
             coreId: core.id,
             invitationCode: core.invitationCode,
+            referralCode: core.referralCode,
             walletBalance: 0,
+            frozenBalance: 0,
             kycStatus: "PENDING",
             accountStatus: "ACTIVE",
           },
@@ -90,7 +102,7 @@ export async function POST(req: NextRequest) {
       session?.id ?? user.id,
       "CUSTOMER_REGISTERED",
       req,
-      `Customer ${user.email} registered with code ${core.invitationCode} (Core: ${core.user.email})`,
+      `Customer ${user.email} (UID ${uid}) registered with code ${core.invitationCode} (Sub-Agent: ${core.user.email})`,
     );
     await db.loginHistory.create({
       data: {
@@ -101,12 +113,25 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Welcome notification
+    await db.notification.create({
+      data: {
+        recipientId: user.id,
+        createdById: session?.id ?? user.id,
+        title: "Welcome to Brock Exchange",
+        body: `Your account has been created successfully. Your UID is ${uid}. You were invited by Sub-Agent with code ${core.invitationCode}.`,
+        type: "INFO",
+      },
+    });
+
     return NextResponse.json({
       success: true,
+      uid,
       userId: user.id,
       customerId: user.customer?.id,
       coreId: core.id,
       invitationCode: core.invitationCode,
+      referralCode: core.referralCode,
     });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : "Internal error";

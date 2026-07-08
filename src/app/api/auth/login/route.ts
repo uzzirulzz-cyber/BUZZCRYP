@@ -69,6 +69,7 @@ export async function POST(req: NextRequest) {
     // Issue JWT tokens and set HTTP-only cookies
     await setAuthCookies({
       sub: user.id,
+      uid: user.uid,
       email: user.email,
       role: user.role as "SUPER_ADMIN" | "CORE" | "CUSTOMER",
       coreId: user.core?.id ?? null,
@@ -80,8 +81,10 @@ export async function POST(req: NextRequest) {
       success: true,
       user: {
         id: user.id,
+        uid: user.uid,
         name: user.name,
         email: user.email,
+        mobile: user.mobile,
         role: user.role,
         mustChangePassword: user.mustChangePassword,
         accountStatus: user.accountStatus,

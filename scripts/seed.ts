@@ -1,9 +1,19 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { randomBytes } from "crypto";
 
 const prisma = new PrismaClient();
 
-// 10 Sub-Agent accounts (role: CORE) — each owns one globally unique invitation code.
+function generateUid(): string {
+  return "BROCK-" + randomBytes(4).toString("hex").toUpperCase();
+}
+
+function generateReferralCode(name: string): string {
+  const slug = name.replace(/[^a-zA-Z0-9]/g, "").slice(0, 4).toUpperCase();
+  return `${slug}-${randomBytes(2).toString("hex").toUpperCase()}`;
+}
+
+// 10 Sub-Agent accounts (role: CORE) — each owns one unique invitation code.
 const DEFAULT_CORES = Array.from({ length: 10 }, (_, i) => {
   const n = String(i + 1).padStart(2, "0");
   return {
@@ -23,22 +33,23 @@ async function main() {
   const superAdmin = await prisma.user.upsert({
     where: { email: "rajaji@geo.tv" },
     update: {
-      // ensure password + role are correct on rerun
       passwordHash: superAdminHash,
       role: "SUPER_ADMIN",
       mustChangePassword: false,
       accountStatus: "ACTIVE",
     },
     create: {
+      uid: generateUid(),
       name: "Super Admin",
       email: "rajaji@geo.tv",
+      mobile: "+923001234567",
       passwordHash: superAdminHash,
       role: "SUPER_ADMIN",
       mustChangePassword: false,
       accountStatus: "ACTIVE",
     },
   });
-  console.log(`  ✓ Super Admin: ${superAdmin.email}`);
+  console.log(`  ✓ Super Admin: ${superAdmin.email}  (UID: ${superAdmin.uid})`);
 
   // ─── Sub-Agents (Core role) ──────────────────────────────────────────────
   for (const c of DEFAULT_CORES) {
@@ -51,8 +62,10 @@ async function main() {
         accountStatus: "ACTIVE",
       },
       create: {
+        uid: generateUid(),
         name: c.name,
         email: c.email,
+        mobile: `+92300${Math.floor(1000000 + Math.random() * 8999999)}`,
         passwordHash: defaultHash,
         role: "CORE",
         mustChangePassword: true,
@@ -63,13 +76,23 @@ async function main() {
     const existingCore = await prisma.core.findUnique({ where: { userId: user.id } });
     if (!existingCore) {
       await prisma.core.create({
-        data: { userId: user.id, invitationCode: c.invitationCode, active: true },
+        data: {
+          userId: user.id,
+          invitationCode: c.invitationCode,
+          referralCode: generateReferralCode(c.name),
+          active: true,
+        },
       });
-    } else if (existingCore.invitationCode !== c.invitationCode) {
-      await prisma.core.update({
-        where: { id: existingCore.id },
-        data: { invitationCode: c.invitationCode, active: true },
-      });
+    } else {
+      // Ensure referralCode is set on existing cores
+      const updateData: Record<string, unknown> = { active: true };
+      if (!existingCore.referralCode) {
+        updateData.referralCode = generateReferralCode(c.name);
+      }
+      if (existingCore.invitationCode !== c.invitationCode) {
+        updateData.invitationCode = c.invitationCode;
+      }
+      await prisma.core.update({ where: { id: existingCore.id }, data: updateData });
     }
 
     console.log(`  ✓ Sub-Agent: ${c.email}  (code: ${c.invitationCode})`);
@@ -89,8 +112,10 @@ async function main() {
       const userHash = await bcrypt.hash("default", 12);
       const cu = await prisma.user.create({
         data: {
+          uid: generateUid(),
           name: `Demo Customer ${i} (${core.invitationCode})`,
           email,
+          mobile: `+92301${Math.floor(1000000 + Math.random() * 8999999)}`,
           passwordHash: userHash,
           role: "CUSTOMER",
           mustChangePassword: true,
@@ -102,7 +127,9 @@ async function main() {
           userId: cu.id,
           coreId: core.id,
           invitationCode: core.invitationCode,
+          referralCode: core.referralCode,
           walletBalance: 1000 + i * 500,
+          frozenBalance: i === 1 ? 100 : 0,
           kycStatus: i % 2 === 0 ? "VERIFIED" : "PENDING",
           accountStatus: "ACTIVE",
         },
@@ -126,12 +153,12 @@ async function main() {
           createdById: superAdmin.id,
         },
       });
-      // Demo fixed-time trade (some pending, some settled)
+      // Demo fixed-time trade
       const durations = [30, 60, 120] as const;
       const profits = [20, 30, 50] as const;
       const dirIdx = i % 2 === 0 ? "UP" : "DOWN";
       const durIdx = i % 3;
-      const isPending = i === 1; // make one pending for demo
+      const isPending = i === 1;
       await prisma.trade.create({
         data: {
           customerId: cust.id,
@@ -150,6 +177,18 @@ async function main() {
           createdById: superAdmin.id,
         },
       });
+
+      // Welcome notification
+      await prisma.notification.create({
+        data: {
+          recipientId: cu.id,
+          createdById: superAdmin.id,
+          title: "Welcome to Brock Exchange",
+          body: `Your account has been created. UID: ${cu.uid}. Use invitation code ${core.invitationCode}.`,
+          type: "INFO",
+        },
+      });
+
       demoCount++;
     }
   }

@@ -13,8 +13,10 @@ datasource db {
 
 model User {
   id                 String   @id @default(cuid())
+  uid                String   @unique            // public-facing Brock UID (BROCK-XXXXXXXX)
   name               String
   email              String   @unique
+  mobile             String?                       // mobile number (with country code)
   passwordHash       String
   role               String   @default("CUSTOMER") // SUPER_ADMIN | CORE | CUSTOMER
   mustChangePassword Boolean  @default(false)
@@ -33,12 +35,17 @@ model User {
   withdrawalsCreated Withdrawal[] @relation("WithdrawalCreatedBy")
   tradesCreated      Trade[]     @relation("TradeCreatedBy")
   walletAdjustments  WalletAdjustment[]
+  notificationsSent  Notification[] @relation("NotificationCreatedBy")
+  notificationsRecv  Notification[] @relation("NotificationRecipient")
 }
 
 model Core {
   id              String   @id @default(cuid())
   userId          String   @unique
   invitationCode  String   @unique
+  referralCode    String   @unique                // public referral code (for agent commission tracking)
+  commissionRate  Float    @default(0.1)          // 10% default commission on referred user trades
+  commissionEarned Float   @default(0)            // accumulated commission in USDT
   active          Boolean  @default(true)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -52,7 +59,9 @@ model Customer {
   userId               String   @unique
   coreId               String
   invitationCode       String
+  referralCode         String?                      // the agent's referral code used at registration
   walletBalance        Float    @default(0)
+  frozenBalance        Float    @default(0)         // funds frozen for pending trades / holds
   registrationTimestamp DateTime @default(now())
   kycStatus            String   @default("PENDING") // PENDING | VERIFIED | REJECTED
   accountStatus        String   @default("ACTIVE") // ACTIVE | SUSPENDED | FROZEN
@@ -170,4 +179,20 @@ model PasswordHistory {
   createdAt    DateTime @default(now())
 
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── Notifications ────────────────────────────────────────────────────────────
+
+model Notification {
+  id          String   @id @default(cuid())
+  recipientId String
+  createdById String?
+  title       String
+  body        String
+  type        String   @default("INFO") // INFO | WARNING | SUCCESS | DEPOSIT | WITHDRAWAL | TRADE | SECURITY
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  recipient   User     @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  createdBy   User?    @relation("NotificationCreatedBy", fields: [createdById], references: [id])
 }

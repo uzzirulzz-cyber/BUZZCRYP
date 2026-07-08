@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import { randomBytes } from "crypto";
 import { db } from "@/lib/db";
 
 export const JWT_SECRET = process.env.JWT_SECRET || "brock-exchange-super-secret-change-me-2026";
@@ -18,11 +19,17 @@ export type Role = "SUPER_ADMIN" | "CORE" | "CUSTOMER";
 
 export interface JwtPayload {
   sub: string;
+  uid: string;
   email: string;
   role: Role;
   coreId?: string | null;
   customerId?: string | null;
   name: string;
+}
+
+// Generate a unique Brock UID (BROCK-XXXXXXXX format)
+export function generateUid(): string {
+  return "BROCK-" + randomBytes(4).toString("hex").toUpperCase();
 }
 
 // ─── Password hashing ────────────────────────────────────────────────────────
@@ -142,8 +149,10 @@ export async function getAuthPayload(): Promise<JwtPayload | null> {
 
 export interface SessionUser {
   id: string;
+  uid: string;
   name: string;
   email: string;
+  mobile?: string | null;
   role: Role;
   coreId?: string | null;
   customerId?: string | null;
@@ -162,8 +171,10 @@ export async function getSession(): Promise<SessionUser | null> {
   if (!user || user.accountStatus === "DELETED") return null;
   return {
     id: user.id,
+    uid: user.uid,
     name: user.name,
     email: user.email,
+    mobile: user.mobile,
     role: user.role as Role,
     coreId: user.core?.id ?? null,
     customerId: user.customer?.id ?? null,
