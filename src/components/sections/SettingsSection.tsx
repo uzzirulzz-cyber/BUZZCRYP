@@ -1,12 +1,50 @@
 "use client";
 
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Settings, ShieldCheck, Lock, KeyRound, Activity, Database } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Settings, ShieldCheck, Lock, KeyRound, Activity, Database,
+  Trash2, AlertTriangle, RefreshCw, CheckCircle2,
+} from "lucide-react";
 import { useApp } from "@/lib/store";
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 export function SettingsSection() {
   const { user } = useApp();
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [confirmText, setConfirmText] = useState("");
+
+  const doReset = async () => {
+    if (confirmText !== "RESET") {
+      toast.error('Type "RESET" to confirm');
+      return;
+    }
+    setResetting(true);
+    try {
+      const res = await fetch("/api/admin/reset", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "Reset failed");
+        return;
+      }
+      toast.success("Platform reset complete — all dummy data wiped");
+      setResetOpen(false);
+      setConfirmText("");
+      // Reload the page to refresh all data
+      setTimeout(() => window.location.reload(), 1500);
+    } catch {
+      toast.error("Network error during reset");
+    } finally {
+      setResetting(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div>
@@ -52,7 +90,7 @@ export function SettingsSection() {
             <Info label="Your email" value={user?.email || "—"} />
             <Info label="Account status" value={user?.accountStatus || "—"} />
             <Info label="Default currency" value="USDT" />
-            <Info label="Database" value="SQLite (production-ready schema)" />
+            <Info label="Database" value="Neon PostgreSQL" />
             <Info label="RBAC enforcement" value="Active on every route" />
             <Info label="Audit log retention" value="Indefinite" />
           </CardContent>
@@ -99,6 +137,94 @@ export function SettingsSection() {
           <p>Customer-to-Core assignment is permanent and can only be changed by the Super Admin via the customer detail dialog.</p>
         </CardContent>
       </Card>
+
+      {/* ─── Danger Zone: Reset Platform ─────────────────────────── */}
+      <Card className="brock-card border-destructive/30">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-destructive">
+            <AlertTriangle className="h-5 w-5" /> Danger Zone
+          </CardTitle>
+          <CardDescription>
+            Reset the entire platform to a clean state. This will permanently delete ALL customers,
+            deposits, withdrawals, trades, wallet adjustments, notifications, audit logs, and login
+            history — leaving only the default Super Admin and 5 Sub-Agent accounts. No dummy entries.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="rounded-md bg-destructive/5 border border-destructive/20 p-3 text-xs space-y-1">
+            <div className="font-semibold text-destructive flex items-center gap-1">
+              <AlertTriangle className="h-3.5 w-3.5" /> This action cannot be undone.
+            </div>
+            <div className="text-muted-foreground">
+              All customer data, transactions, and logs will be permanently deleted.
+              Only the following default accounts will remain:
+            </div>
+            <ul className="text-muted-foreground ml-4 list-disc">
+              <li>Super Admin: crdbixx@gmail.com</li>
+              <li>SubAgent 1-5: subagent1@trade.com ... subagent5@trade5.com (PB-AG001-005)</li>
+            </ul>
+          </div>
+          <Button
+            variant="outline"
+            className="border-destructive/40 text-destructive hover:bg-destructive/10"
+            onClick={() => setResetOpen(true)}
+          >
+            <RefreshCw className="h-4 w-4 mr-2" /> Reset Platform to Defaults
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Reset confirmation dialog */}
+      <Dialog open={resetOpen} onOpenChange={setResetOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-5 w-5" /> Confirm Platform Reset
+            </DialogTitle>
+            <DialogDescription>
+              This will permanently delete ALL data and keep only the default admin accounts.
+              Type <span className="font-mono font-bold text-destructive">RESET</span> to confirm.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div className="rounded-md bg-muted/30 p-3 text-xs space-y-1">
+              <div className="flex justify-between"><span className="text-muted-foreground">Customers</span><span className="text-destructive">All deleted</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Deposits</span><span className="text-destructive">All deleted</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Withdrawals</span><span className="text-destructive">All deleted</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Trades</span><span className="text-destructive">All deleted</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Wallet adjustments</span><span className="text-destructive">All deleted</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Notifications</span><span className="text-destructive">All deleted</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Audit logs</span><span className="text-destructive">All deleted</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Login history</span><span className="text-destructive">All deleted</span></div>
+              <div className="flex justify-between border-t border-border/40 pt-1 mt-1"><span className="text-emerald-400 font-medium">Super Admin</span><span className="text-emerald-400">Kept (crdbixx@gmail.com)</span></div>
+              <div className="flex justify-between"><span className="text-emerald-400 font-medium">Sub-Agents</span><span className="text-emerald-400">Kept (5 accounts, PB-AG001-005)</span></div>
+            </div>
+            <input
+              type="text"
+              placeholder='Type RESET to confirm'
+              value={confirmText}
+              onChange={(e) => setConfirmText(e.target.value)}
+              className="w-full px-3 py-2 rounded-md bg-input border border-border/40 text-sm focus:outline-none focus:border-destructive"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => { setResetOpen(false); setConfirmText(""); }}>
+              Cancel
+            </Button>
+            <Button
+              onClick={doReset}
+              disabled={resetting || confirmText !== "RESET"}
+              className="bg-destructive text-white hover:bg-destructive/90"
+            >
+              {resetting ? (
+                <><RefreshCw className="h-4 w-4 mr-2 animate-spin" /> Resetting...</>
+              ) : (
+                <><Trash2 className="h-4 w-4 mr-2" /> Reset Platform
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
