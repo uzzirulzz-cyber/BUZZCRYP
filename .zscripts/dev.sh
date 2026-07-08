@@ -8,10 +8,22 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # Load .env file to override any stale system DATABASE_URL
+# Use a Node.js one-liner to parse .env correctly (handles quotes, &, etc.)
 if [ -f "$PROJECT_DIR/.env" ]; then
-  set -a
-  . "$PROJECT_DIR/.env"
-  set +a
+  export $(node -e "
+    const fs = require('fs');
+    const lines = fs.readFileSync('$PROJECT_DIR/.env', 'utf8').split('\n');
+    for (const line of lines) {
+      const m = line.match(/^([A-Z_]+)=(.*)$/);
+      if (m) {
+        let v = m[2].trim();
+        if ((v.startsWith('\"') && v.endsWith('\"')) || (v.startsWith(\"'\") && v.endsWith(\"'\"))) {
+          v = v.slice(1, -1);
+        }
+        console.log(m[1] + '=' + v);
+      }
+    }
+  " | xargs)
 fi
 
 log_step_start() {
