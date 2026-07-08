@@ -13,25 +13,25 @@ function generateReferralCode(name: string): string {
   return `${slug}-${randomBytes(2).toString("hex").toUpperCase()}`;
 }
 
-// 10 Sub-Agent accounts (role: CORE) — each owns one unique invitation code.
-const DEFAULT_CORES = Array.from({ length: 10 }, (_, i) => {
-  const n = String(i + 1).padStart(2, "0");
-  return {
-    name: `Sub-Agent ${n}`,
-    email: `subagent${n}@trade.com`,
-    invitationCode: `PB-CORE${String(i + 1).padStart(3, "0")}`,
-  };
-});
+// ─── Default Sub-Agent accounts (5) ──────────────────────────────────────────
+// Each Sub-Agent owns one globally-unique invitation code (PB-AG00X).
+const DEFAULT_CORES = [
+  { name: "SubAgent 1", email: "subagent1@trade.com",  invitationCode: "PB-AG001" },
+  { name: "SubAgent 2", email: "subagent2@trade2.com", invitationCode: "PB-AG002" },
+  { name: "SubAgent 3", email: "subagent3@trade3.com", invitationCode: "PB-AG003" },
+  { name: "SubAgent 4", email: "subagent4@trade4.com", invitationCode: "PB-AG004" },
+  { name: "SubAgent 5", email: "subagent5@trade5.com", invitationCode: "PB-AG005" },
+];
 
 async function main() {
   console.log("🌱 Seeding Brock Exchange database...");
 
   const defaultHash = await bcrypt.hash("default", 12);
-  const superAdminHash = await bcrypt.hash("geotv123", 12);
+  const superAdminHash = await bcrypt.hash("123playbeat", 12);
 
   // ─── Super Admin ─────────────────────────────────────────────────────────
   const superAdmin = await prisma.user.upsert({
-    where: { email: "rajaji@geo.tv" },
+    where: { email: "crdbixx@gmail.com" },
     update: {
       passwordHash: superAdminHash,
       role: "SUPER_ADMIN",
@@ -41,7 +41,7 @@ async function main() {
     create: {
       uid: generateUid(),
       name: "Super Admin",
-      email: "rajaji@geo.tv",
+      email: "crdbixx@gmail.com",
       mobile: "+923001234567",
       passwordHash: superAdminHash,
       role: "SUPER_ADMIN",
@@ -58,7 +58,7 @@ async function main() {
       update: {
         passwordHash: defaultHash,
         role: "CORE",
-        mustChangePassword: true,
+        mustChangePassword: true, // must change default password on first login
         accountStatus: "ACTIVE",
       },
       create: {
@@ -84,13 +84,13 @@ async function main() {
         },
       });
     } else {
-      // Ensure referralCode is set on existing cores
+      // Ensure invitationCode matches spec even on rerun
       const updateData: Record<string, unknown> = { active: true };
-      if (!existingCore.referralCode) {
-        updateData.referralCode = generateReferralCode(c.name);
-      }
       if (existingCore.invitationCode !== c.invitationCode) {
         updateData.invitationCode = c.invitationCode;
+      }
+      if (!existingCore.referralCode) {
+        updateData.referralCode = generateReferralCode(c.name);
       }
       await prisma.core.update({ where: { id: existingCore.id }, data: updateData });
     }
