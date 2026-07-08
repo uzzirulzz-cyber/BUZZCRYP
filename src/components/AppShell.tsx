@@ -32,6 +32,37 @@ export function AppShell() {
     refreshUser();
   }, [refreshUser]);
 
+  // Handle redirects via useEffect to avoid setting state during render
+  useEffect(() => {
+    if (loadingUser || !user) return;
+
+    // Redirect logged-in users away from login/register
+    if (view === "login" || view === "register") {
+      if (user.role === "CUSTOMER") setView("user-dashboard");
+      else if (user.role === "CORE") setView("agent-panel");
+      else setView("admin");
+      return;
+    }
+
+    // Redirect customers away from admin
+    if (view === "admin" && user.role === "CUSTOMER") {
+      setView("user-dashboard");
+      return;
+    }
+
+    // Redirect admin/core away from user-dashboard
+    if (view === "user-dashboard" && (user.role === "SUPER_ADMIN" || user.role === "CORE")) {
+      setView("admin");
+      return;
+    }
+
+    // Redirect non-cores away from agent-panel
+    if (view === "agent-panel" && user.role !== "CORE") {
+      setView(user.role === "SUPER_ADMIN" ? "admin" : "user-dashboard");
+      return;
+    }
+  }, [user, view, loadingUser, setView]);
+
   // Initial loading splash
   if (loadingUser) {
     return (
@@ -44,19 +75,11 @@ export function AppShell() {
     );
   }
 
-  // ─── Admin view: requires authentication ─────────────────────
+  // ─── Admin view: requires SUPER_ADMIN or CORE ────────────────
   if (view === "admin") {
-    if (!user) {
-      return <LoginForm />;
-    }
-    if (user.mustChangePassword) {
-      return <ForceChangePassword />;
-    }
-    // Only Super Admin and Core can access /admin
-    if (user.role === "CUSTOMER") {
-      // Customers should go to user dashboard
-      return <UserDashboard />;
-    }
+    if (!user) return <LoginForm />;
+    if (user.mustChangePassword) return <ForceChangePassword />;
+    if (user.role === "CUSTOMER") return <UserDashboard />;
     return (
       <div className="min-h-screen flex flex-col">
         <TopBar />
@@ -72,16 +95,12 @@ export function AppShell() {
     );
   }
 
-  // ─── User Dashboard view ─────────────────────────────────────
+  // ─── User Dashboard view (CUSTOMER) ──────────────────────────
   if (view === "user-dashboard") {
     if (!user) return <LoginForm />;
     if (user.mustChangePassword) return <ForceChangePassword />;
-    if (user.role === "CORE") {
-      // Cores see agent panel
-      return <AgentPanel />;
-    }
+    if (user.role === "CORE") return <AgentPanel />;
     if (user.role === "SUPER_ADMIN") {
-      // Super Admin sees admin dashboard
       return (
         <div className="min-h-screen flex flex-col">
           <TopBar />
@@ -97,42 +116,47 @@ export function AppShell() {
     return <UserDashboard />;
   }
 
-  // ─── Agent Panel view ────────────────────────────────────────
+  // ─── Agent Panel view (CORE) ─────────────────────────────────
   if (view === "agent-panel") {
     if (!user) return <LoginForm />;
     if (user.mustChangePassword) return <ForceChangePassword />;
     if (user.role === "CORE") return <AgentPanel />;
-    // Non-cores redirect to their proper dashboard
-    if (user.role === "SUPER_ADMIN") {
-      setView("admin");
-      return null;
-    }
+    if (user.role === "SUPER_ADMIN") return (
+      <div className="min-h-screen flex flex-col">
+        <TopBar />
+        <div className="flex-1 flex">
+          <Sidebar />
+          <main className="flex-1 min-w-0 p-4 sm:p-6 max-w-full">
+            <div className="mx-auto max-w-7xl">{renderSection(section, user.role)}</div>
+          </main>
+        </div>
+      </div>
+    );
     return <UserDashboard />;
   }
 
   // ─── Login view ──────────────────────────────────────────────
   if (view === "login") {
-    if (user) {
-      // Redirect based on role
-      if (user.role === "CUSTOMER") setView("user-dashboard");
-      else if (user.role === "CORE") setView("agent-panel");
-      else setView("admin");
-      return null;
-    }
+    if (user) return <LoadingRedirect />;
     return <LoginForm />;
   }
 
   // ─── Register view ───────────────────────────────────────────
   if (view === "register") {
-    if (user) {
-      setView("storefront");
-      return null;
-    }
+    if (user) return <LoadingRedirect />;
     return <RegisterForm />;
   }
 
   // ─── Storefront view (default) ───────────────────────────────
   return <StorefrontPage />;
+}
+
+function LoadingRedirect() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-10 h-10 rounded-full border-2 border-brock-gold/30 border-t-brock-gold animate-spin" />
+    </div>
+  );
 }
 
 function renderSection(section: string, role: string) {

@@ -4,8 +4,10 @@ import { create } from "zustand";
 
 export type SessionUser = {
   id: string;
+  uid: string;
   name: string;
   email: string;
+  mobile?: string | null;
   role: "SUPER_ADMIN" | "CORE" | "CUSTOMER";
   coreId?: string | null;
   customerId?: string | null;
@@ -57,30 +59,21 @@ interface AppState {
 // /            → storefront (default landing)
 // /home        → storefront
 // /login       → login
-// /admin       → admin dashboard (requires auth)
-// /admin#section → admin with specific section
-// Fallback: hash-based (#storefront / #login / #admin) still works for backwards compat
+// /register    → register
+// /admin       → admin dashboard (SUPER_ADMIN + CORE)
+// /dashboard   → user dashboard (CUSTOMER)
+// /agent       → agent panel (CORE)
 
 function readView(): View {
   if (typeof window === "undefined") return "storefront";
   const path = window.location.pathname.toLowerCase();
-  const hash = window.location.hash.replace("#", "").toLowerCase();
 
-  // Path takes priority
   if (path === "/home" || path === "/") return "storefront";
   if (path === "/login") return "login";
   if (path === "/register") return "register";
   if (path === "/admin") return "admin";
   if (path === "/dashboard") return "user-dashboard";
   if (path === "/agent") return "agent-panel";
-
-  // Hash fallback (backwards compat)
-  if (hash === "login") return "login";
-  if (hash === "register") return "register";
-  if (hash === "admin") return "admin";
-  if (hash === "storefront" || hash === "home") return "storefront";
-  if (hash === "dashboard") return "user-dashboard";
-  if (hash === "agent") return "agent-panel";
 
   return "storefront";
 }
@@ -110,6 +103,32 @@ function readSection(): string {
     "login-history", "reports", "settings",
   ];
   return valid.includes(hash) ? hash : "dashboard";
+}
+
+// Determine the correct view for a logged-in user based on their role
+function viewForUser(user: SessionUser | null, currentView: View): View {
+  if (!user) {
+    // Not logged in — can't access admin/dashboard/agent
+    if (currentView === "admin" || currentView === "user-dashboard" || currentView === "agent-panel") {
+      return "storefront";
+    }
+    return currentView;
+  }
+  // Logged in — redirect to role-appropriate view if on storefront/login/register
+  if (currentView === "storefront" || currentView === "login" || currentView === "register") {
+    if (user.role === "CUSTOMER") return "user-dashboard";
+    if (user.role === "CORE") return "agent-panel";
+    return "admin";
+  }
+  // If on admin but not authorized (customer on /admin)
+  if (currentView === "admin" && user.role === "CUSTOMER") return "user-dashboard";
+  // If on user-dashboard but is admin/core
+  if (currentView === "user-dashboard" && (user.role === "SUPER_ADMIN" || user.role === "CORE")) return "admin";
+  // If on agent-panel but not core
+  if (currentView === "agent-panel" && user.role !== "CORE") {
+    return user.role === "SUPER_ADMIN" ? "admin" : "user-dashboard";
+  }
+  return currentView;
 }
 
 export const useApp = create<AppState>((set, get) => ({
@@ -146,16 +165,9 @@ export const useApp = create<AppState>((set, get) => ({
       const data = await res.json();
       const user = data.user ?? null;
       const currentView = get().view;
-      set({
-        user,
-        loadingUser: false,
-        // If logged in and on storefront/login, push to admin
-        // If not logged in and on admin, push to storefront
-        view: user
-          ? (currentView === "admin" ? "admin" : "admin")
-          : (currentView === "admin" ? "storefront" : currentView),
-      });
-      if (user && get().view === "admin") writeView("admin");
+      const newView = viewForUser(user, currentView);
+      set({ user, loadingUser: false, view: newView });
+      if (newView !== currentView) writeView(newView);
     } catch {
       set({ user: null, loadingUser: false });
     }
@@ -167,10 +179,10 @@ if (typeof window !== "undefined") {
   window.addEventListener("popstate", () => {
     const v = readView();
     const state = useApp.getState();
-    // Don't allow unauthenticated users to sit on /admin
-    if (v === "admin" && !state.user) {
-      writeView("storefront");
-      useApp.setState({ view: "storefront" });
+    const newView = viewForUser(state.user, v);
+    if (newView !== v) {
+      writeView(newView);
+      useApp.setState({ view: newView });
     } else {
       useApp.setState({ view: v, section: readSection() });
     }
