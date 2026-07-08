@@ -4,7 +4,7 @@ import { audit, hashPassword, requireSession } from "@/lib/auth";
 import { handleAuthError } from "@/lib/api-utils";
 
 // PATCH /api/users/[id] — Super Admin only
-// Body: { name?, accountStatus?, mustChangePassword?, resetPassword? }
+// Body: { name?, email?, mobile?, accountStatus?, mustChangePassword?, resetPassword? }
 export async function PATCH(
   req: NextRequest,
   ctx: { params: Promise<{ id: string }> },
@@ -16,8 +16,10 @@ export async function PATCH(
     }
     const { id } = await ctx.params;
     const body = await req.json().catch(() => ({}));
-    const { name, accountStatus, mustChangePassword, resetPassword } = body as {
+    const { name, email, mobile, accountStatus, mustChangePassword, resetPassword } = body as {
       name?: string;
+      email?: string;
+      mobile?: string;
       accountStatus?: string;
       mustChangePassword?: boolean;
       resetPassword?: string;
@@ -28,6 +30,15 @@ export async function PATCH(
 
     const data: Record<string, unknown> = {};
     if (name) data.name = name;
+    if (email) {
+      const normalizedEmail = email.toLowerCase().trim();
+      if (normalizedEmail !== existing.email) {
+        const clash = await db.user.findUnique({ where: { email: normalizedEmail } });
+        if (clash) return NextResponse.json({ error: "Email already in use." }, { status: 400 });
+        data.email = normalizedEmail;
+      }
+    }
+    if (mobile !== undefined) data.mobile = mobile || null;
     if (accountStatus && ["ACTIVE", "SUSPENDED", "FROZEN", "DELETED"].includes(accountStatus)) {
       data.accountStatus = accountStatus;
     }
@@ -42,7 +53,7 @@ export async function PATCH(
         );
       }
       data.passwordHash = await hashPassword(resetPassword);
-      data.mustChangePassword = true; // force change on next login
+      data.mustChangePassword = true;
     }
 
     const updated = await db.user.update({ where: { id }, data });
@@ -50,14 +61,16 @@ export async function PATCH(
       session.id,
       "USER_UPDATED",
       req,
-      `Updated user ${id}: ${JSON.stringify({ name, accountStatus, mustChangePassword, resetPassword: !!resetPassword })}`,
+      `Updated user ${id}: ${JSON.stringify({ name, email, mobile, accountStatus, mustChangePassword, resetPassword: !!resetPassword })}`,
     );
     return NextResponse.json({
       success: true,
       user: {
         id: updated.id,
+        uid: updated.uid,
         name: updated.name,
         email: updated.email,
+        mobile: updated.mobile,
         role: updated.role,
         accountStatus: updated.accountStatus,
         mustChangePassword: updated.mustChangePassword,

@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { audit, hashPassword, requireSession } from "@/lib/auth";
 import { handleAuthError, qp, qpInt } from "@/lib/api-utils";
 
-// GET /api/users — Super Admin only: list all users (admin/core)
+// GET /api/users — Super Admin only: list all users (admin/core/customer)
 export async function GET(req: NextRequest) {
   try {
     const session = await requireSession();
@@ -21,6 +21,8 @@ export async function GET(req: NextRequest) {
       where.OR = [
         { name: { contains: search } },
         { email: { contains: search } },
+        { uid: { contains: search } },
+        { mobile: { contains: search } },
       ];
     }
 
@@ -30,8 +32,10 @@ export async function GET(req: NextRequest) {
         where,
         select: {
           id: true,
+          uid: true,
           name: true,
           email: true,
+          mobile: true,
           role: true,
           mustChangePassword: true,
           accountStatus: true,
@@ -44,8 +48,41 @@ export async function GET(req: NextRequest) {
       }),
     ]);
 
+    // For customers, also fetch their wallet balance + core info
+    const enrichedItems = await Promise.all(
+      items.map(async (u) => {
+        if (u.role === "CUSTOMER") {
+          const cust = await db.customer.findUnique({
+            where: { userId: u.id },
+            select: {
+              walletBalance: true,
+              frozenBalance: true,
+              kycStatus: true,
+              invitationCode: true,
+              core: { select: { invitationCode: true, user: { select: { name: true, email: true } } } },
+            },
+          });
+          return { ...u, customer: cust };
+        }
+        if (u.role === "CORE") {
+          const core = await db.core.findUnique({
+            where: { userId: u.id },
+            select: {
+              invitationCode: true,
+              referralCode: true,
+              active: true,
+              commissionEarned: true,
+              _count: { select: { customers: true } },
+            },
+          });
+          return { ...u, core };
+        }
+        return u;
+      }),
+    );
+
     return NextResponse.json({
-      items,
+      items: enrichedItems,
       total,
       page,
       pageSize,
@@ -57,7 +94,7 @@ export async function GET(req: NextRequest) {
 }
 
 // POST /api/users — Super Admin only: create a new admin/core account
-// Body: { name, email, password, role: "SUPER_ADMIN" | "CORE", invitationCode? }
+// Body: { name, email, password, role: "SUPER_ADMIN" | "CORE", invitationCode?, mobile? }
 export async function POST(req: NextRequest) {
   try {
     const session = await requireSession();
@@ -65,12 +102,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
     const body = await req.json().catch(() => ({}));
-    const { name, email, password, role, invitationCode } = body as {
+    const { name, email, password, role, invitationCode, mobile } = body as {
       name?: string;
       email?: string;
       password?: string;
       role?: string;
       invitationCode?: string;
+      mobile?: string;
     };
 
     if (!name || !email || !password || !role) {
@@ -109,13 +147,21 @@ export async function POST(req: NextRequest) {
       }
       const user = await db.user.create({
         data: {
+          uid: "BROCK-" + Math.random().toString(16).slice(2, 10).toUpperCase(),
           name,
           email: normalizedEmail,
+          mobile: mobile || null,
           passwordHash: hash,
           role: "CORE",
           mustChangePassword: true,
           accountStatus: "ACTIVE",
-          core: { create: { invitationCode: normalizedCode, active: true } },
+          core: {
+            create: {
+              invitationCode: normalizedCode,
+              referralCode: name.replace(/[^a-zA-Z0-9]/g, "").slice(0, 4).toUpperCase() + "-" + Math.random().toString(16).slice(2, 6).toUpperCase(),
+              active: true,
+            },
+          },
         },
       });
       await audit(session.id, "USER_CREATED", req, `Created CORE ${user.email}`);
@@ -125,8 +171,10 @@ export async function POST(req: NextRequest) {
     // SUPER_ADMIN
     const user = await db.user.create({
       data: {
+        uid: "BROCK-" + Math.random().toString(16).slice(2, 10).toUpperCase(),
         name,
         email: normalizedEmail,
+        mobile: mobile || null,
         passwordHash: hash,
         role: "SUPER_ADMIN",
         mustChangePassword: true,
