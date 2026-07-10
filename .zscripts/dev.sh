@@ -8,23 +8,26 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # Load .env file to override any stale system DATABASE_URL
-# Use a Node.js one-liner to parse .env correctly (handles quotes, &, etc.)
+# Force-set DATABASE_URL from .env (system env has stale SQLite URL)
 if [ -f "$PROJECT_DIR/.env" ]; then
-  export $(node -e "
-    const fs = require('fs');
-    const lines = fs.readFileSync('$PROJECT_DIR/.env', 'utf8').split('\n');
-    for (const line of lines) {
-      const m = line.match(/^([A-Z_]+)=(.*)$/);
-      if (m) {
-        let v = m[2].trim();
-        if ((v.startsWith('\"') && v.endsWith('\"')) || (v.startsWith(\"'\") && v.endsWith(\"'\"))) {
-          v = v.slice(1, -1);
-        }
-        console.log(m[1] + '=' + v);
-      }
-    }
-  " | xargs)
+  # Extract DATABASE_URL directly from .env file (handles quotes)
+  DB_LINE=$(grep '^DATABASE_URL=' "$PROJECT_DIR/.env" | head -1)
+  DB_VAL="${DB_LINE#DATABASE_URL=}"
+  # Strip surrounding quotes
+  DB_VAL="${DB_VAL#\"}"
+  DB_VAL="${DB_VAL%\"}"
+  DB_VAL="${DB_VAL#\'}"
+  DB_VAL="${DB_VAL%\'}"
+  export DATABASE_URL="$DB_VAL"
+
+  # Extract JWT secrets
+  JWT_LINE=$(grep '^JWT_SECRET=' "$PROJECT_DIR/.env" | head -1)
+  export JWT_SECRET="${JWT_LINE#JWT_SECRET=}"
+
+  JWT_R_LINE=$(grep '^JWT_REFRESH_SECRET=' "$PROJECT_DIR/.env" | head -1)
+  export JWT_REFRESH_SECRET="${JWT_R_LINE#JWT_REFRESH_SECRET=}"
 fi
+echo "[ENV] DATABASE_URL starts with: ${DATABASE_URL:0:40}..."
 
 log_step_start() {
         local step_name="$1"
