@@ -22,6 +22,7 @@ import { useApp } from "@/lib/store";
 import { fmtMoney, fmtRelative, fmtNum } from "@/lib/format";
 import { StatusBadge } from "./DashboardSection";
 import { Pagination } from "./CustomersSection";
+import { LevelBadge } from "@/components/brand/LevelBadge";
 import { toast } from "sonner";
 
 type Trade = {
@@ -215,7 +216,10 @@ export function TradesSection() {
                 {!loading && items.map((t) => (
                   <TableRow key={t.id} className="hover:bg-sidebar-accent/40">
                     <TableCell>
-                      <div className="font-medium">{t.customer?.user?.name}</div>
+                      <div className="font-medium flex items-center gap-1.5">
+                        {t.customer?.user?.name}
+                        {t.customer?.level && <LevelBadge level={t.customer.level} />}
+                      </div>
                       <div className="text-[11px] text-muted-foreground">{t.customer?.user?.email}</div>
                     </TableCell>
                     <TableCell className="font-mono text-sm">{t.pair}</TableCell>

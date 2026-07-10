@@ -31,9 +31,10 @@ import {
 } from "@/components/ui/table";
 import { fmtMoney, fmtDate } from "@/lib/format";
 import { StatusBadge } from "./DashboardSection";
+import { LevelBadge, LEVELS } from "@/components/brand/LevelBadge";
 import { useApp } from "@/lib/store";
 import { toast } from "sonner";
-import { Wallet, ArrowDownToLine, ArrowUpFromLine, CandlestickChart, Save } from "lucide-react";
+import { Wallet, ArrowDownToLine, ArrowUpFromLine, CandlestickChart, Save, Award } from "lucide-react";
 
 export function CustomerDetailDialog({
   id,
@@ -55,6 +56,22 @@ export function CustomerDetailDialog({
   const [adjustReason, setAdjustReason] = useState("");
   const [cores, setCores] = useState<any[]>([]);
   const [newCore, setNewCore] = useState("");
+  const [newLevel, setNewLevel] = useState<number>(1);
+
+  const changeLevel = async () => {
+    const res = await fetch(`/api/customers/${id}/level`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ level: newLevel }),
+    });
+    const data = await res.json();
+    if (!res.ok) return toast.error(data.error || "Failed");
+    toast.success(data.message || "Level updated");
+    // Reload customer
+    const c = await fetch(`/api/customers/${id}`, { cache: "no-store" }).then((r) => r.json());
+    setCust(c);
+    onUpdated();
+  };
 
   useEffect(() => {
     (async () => {
@@ -208,6 +225,35 @@ export function CustomerDetailDialog({
                       </SelectContent>
                     </Select>
                     <Button size="sm" onClick={reassign} disabled={!newCore}>Reassign</Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* User Level badge + selector */}
+            {isAdmin && cust && (
+              <Card className="brock-card">
+                <CardContent className="pt-4 space-y-2">
+                  <div className="text-sm font-semibold flex items-center gap-2">
+                    <Award className="h-4 w-4 text-brock-gold" /> User Level
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Current level: <LevelBadge level={cust.level || 1} />
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    <Select value={String(newLevel)} onValueChange={(v) => setNewLevel(Number(v))}>
+                      <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(LEVELS).map(([lv, info]) => (
+                          <SelectItem key={lv} value={lv}>
+                            {info.icon} {info.name} (Level {lv})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button size="sm" onClick={changeLevel} disabled={newLevel === (cust.level || 1)}>
+                      <Save className="h-3 w-3 mr-1" /> Set Level
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

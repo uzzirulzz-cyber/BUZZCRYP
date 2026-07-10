@@ -57,6 +57,7 @@ import {
 import { useApp } from "@/lib/store";
 import { fmtMoney, fmtRelative } from "@/lib/format";
 import { StatusBadge } from "./DashboardSection";
+import { LevelBadge } from "@/components/brand/LevelBadge";
 import { toast } from "sonner";
 import { CustomerDetailDialog } from "./CustomerDetailDialog";
 
@@ -241,7 +242,10 @@ export function CustomersSection() {
                 {!loading && items.map((c) => (
                   <TableRow key={c.id} className="hover:bg-sidebar-accent/40">
                     <TableCell>
-                      <div className="font-medium">{c.user.name}</div>
+                      <div className="font-medium flex items-center gap-1.5">
+                        {c.user.name}
+                        <LevelBadge level={c.level || 1} />
+                      </div>
                       <div className="text-[11px] text-muted-foreground">{c.user.email}</div>
                     </TableCell>
                     <TableCell>
