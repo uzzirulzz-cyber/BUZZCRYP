@@ -17,7 +17,7 @@ import {
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Trash2, CandlestickChart, ArrowRight, Zap, Rocket, Gem, TrendingUp, TrendingDown, Clock, AlertTriangle, RefreshCw } from "lucide-react";
+import { Plus, Trash2, CandlestickChart, ArrowRight, Zap, Rocket, Gem, TrendingUp, TrendingDown, Clock, AlertTriangle, RefreshCw, CheckCircle2, XCircle } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { fmtMoney, fmtRelative, fmtNum } from "@/lib/format";
 import { StatusBadge } from "./DashboardSection";
@@ -101,6 +101,18 @@ export function TradesSection() {
     const res = await fetch(`/api/trades/${id}`, { method: "DELETE" });
     if (!res.ok) return toast.error("Failed");
     toast.success("Deleted");
+    load();
+  };
+
+  const settleTrade = async (id: string, outcome: "WIN" | "LOSS") => {
+    const res = await fetch(`/api/trades/${id}/settle`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ outcome }),
+    });
+    const data = await res.json();
+    if (!res.ok) return toast.error(data.error || "Failed");
+    toast.success(data.message || `Trade settled as ${outcome}`);
     load();
   };
 
@@ -221,9 +233,33 @@ export function TradesSection() {
                     <TableCell className="text-xs text-muted-foreground">{fmtRelative(t.createdAt)}</TableCell>
                     {isAdmin && (
                       <TableCell>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => remove(t.id)}>
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                        <div className="flex items-center gap-1">
+                          {t.outcome === "PENDING" && (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 px-2 text-xs border-emerald-400/40 text-emerald-400 hover:bg-emerald-400/10"
+                                onClick={() => settleTrade(t.id, "WIN")}
+                                title="Set as WIN — credits payout to customer"
+                              >
+                                <CheckCircle2 className="h-3 w-3 mr-1" /> Win
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 px-2 text-xs border-destructive/40 text-destructive hover:bg-destructive/10"
+                                onClick={() => settleTrade(t.id, "LOSS")}
+                                title="Set as LOSS — stake retained by platform"
+                              >
+                                <XCircle className="h-3 w-3 mr-1" /> Loss
+                              </Button>
+                            </>
+                          )}
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => remove(t.id)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
                       </TableCell>
                     )}
                   </TableRow>
