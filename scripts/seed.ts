@@ -2,11 +2,17 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 
-// Force-load .env to override any stale system DATABASE_URL
-import { config } from "dotenv";
-config({ path: __dirname + "/../.env", override: true });
+// Force-set DATABASE_URL from .env file (system env has stale SQLite URL)
+import fs from "fs";
+const envContent = fs.readFileSync(__dirname + "/../.env", "utf8");
+const dbMatch = envContent.match(/^DATABASE_URL="?(.+?)"?$/m);
+const DB_URL = dbMatch ? dbMatch[1] : process.env.DATABASE_URL!;
+process.env.DATABASE_URL = DB_URL;
 
-const prisma = new PrismaClient();
+// Use datasources override to bypass schema env() validation
+const prisma = new PrismaClient({
+  datasources: { db: { url: DB_URL } },
+});
 
 function generateUid(): string {
   return "BROCK-" + randomBytes(4).toString("hex").toUpperCase();
@@ -18,24 +24,23 @@ function generateReferralCode(name: string): string {
 }
 
 // ─── Default Sub-Agent accounts (5) ──────────────────────────────────────────
-// Each Sub-Agent owns one globally-unique invitation code (PB-AG00X).
+// Each Sub-Agent owns one globally-unique invitation code (BR-AG00X).
 const DEFAULT_CORES = [
-  { name: "SubAgent 1", email: "subagent1@trade.com",  invitationCode: "PB-AG001" },
-  { name: "SubAgent 2", email: "subagent2@trade2.com", invitationCode: "PB-AG002" },
-  { name: "SubAgent 3", email: "subagent3@trade3.com", invitationCode: "PB-AG003" },
-  { name: "SubAgent 4", email: "subagent4@trade4.com", invitationCode: "PB-AG004" },
-  { name: "SubAgent 5", email: "subagent5@trade5.com", invitationCode: "PB-AG005" },
+  { name: "SubAgent 1", email: "subagent1BR@trade.com",  password: "BRSub#1001", invitationCode: "BR-AG001" },
+  { name: "SubAgent 2", email: "subagent2BR@trade2.com", password: "BRSub#1002", invitationCode: "BR-AG002" },
+  { name: "SubAgent 3", email: "subagent3BR@trade3.com", password: "BRSub#1003", invitationCode: "BR-AG003" },
+  { name: "SubAgent 4", email: "subagent4BR@trade4.com", password: "BRSub#1004", invitationCode: "BR-AG004" },
+  { name: "SubAgent 5", email: "subagent5BR@trade5.com", password: "BRSub#1005", invitationCode: "BR-AG005" },
 ];
 
 async function main() {
   console.log("🌱 Seeding BuzzCryp database...");
 
-  const defaultHash = await bcrypt.hash("default", 12);
-  const superAdminHash = await bcrypt.hash("123playbeat", 12);
+  const superAdminHash = await bcrypt.hash("Brock@Admin2026!", 12);
 
   // ─── Super Admin ─────────────────────────────────────────────────────────
   const superAdmin = await prisma.user.upsert({
-    where: { email: "crdbixx@gmail.com" },
+    where: { email: "admin@brockexchange.com" },
     update: {
       passwordHash: superAdminHash,
       role: "SUPER_ADMIN",
@@ -45,7 +50,7 @@ async function main() {
     create: {
       uid: generateUid(),
       name: "Super Admin",
-      email: "crdbixx@gmail.com",
+      email: "admin@brockexchange.com",
       mobile: "+923001234567",
       passwordHash: superAdminHash,
       role: "SUPER_ADMIN",
@@ -57,12 +62,13 @@ async function main() {
 
   // ─── Sub-Agents (Core role) ──────────────────────────────────────────────
   for (const c of DEFAULT_CORES) {
+    const hash = await bcrypt.hash(c.password, 12);
     const user = await prisma.user.upsert({
       where: { email: c.email },
       update: {
-        passwordHash: defaultHash,
+        passwordHash: hash,
         role: "CORE",
-        mustChangePassword: true, // must change default password on first login
+        mustChangePassword: true, // must change password on first login
         accountStatus: "ACTIVE",
       },
       create: {
@@ -70,7 +76,7 @@ async function main() {
         name: c.name,
         email: c.email,
         mobile: `+92300${Math.floor(1000000 + Math.random() * 8999999)}`,
-        passwordHash: defaultHash,
+        passwordHash: hash,
         role: "CORE",
         mustChangePassword: true,
         accountStatus: "ACTIVE",
@@ -88,7 +94,6 @@ async function main() {
         },
       });
     } else {
-      // Ensure invitationCode matches spec even on rerun
       const updateData: Record<string, unknown> = { active: true };
       if (existingCore.invitationCode !== c.invitationCode) {
         updateData.invitationCode = c.invitationCode;
@@ -134,6 +139,7 @@ async function main() {
           referralCode: core.referralCode,
           walletBalance: 1000 + i * 500,
           frozenBalance: i === 1 ? 100 : 0,
+          level: i % 2 === 0 ? 3 : 1, // alternate Gold/Bronze
           kycStatus: i % 2 === 0 ? "VERIFIED" : "PENDING",
           accountStatus: "ACTIVE",
         },

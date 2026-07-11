@@ -43,15 +43,14 @@ export async function POST(req: NextRequest) {
     ]);
 
     // Re-seed with ONLY the default accounts — no dummy entries
-    const defaultHash = await hashPassword("default", 12);
-    const superAdminHash = await hashPassword("123playbeat", 12);
+    const superAdminHash = await hashPassword("Brock@Admin2026!", 12);
 
     // Super Admin
     const superAdmin = await db.user.create({
       data: {
         uid: generateUid(),
         name: "Super Admin",
-        email: "crdbixx@gmail.com",
+        email: "admin@brockexchange.com",
         mobile: "+923001234567",
         passwordHash: superAdminHash,
         role: "SUPER_ADMIN",
@@ -60,22 +59,23 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // 5 Sub-Agents with PB-AG001 to PB-AG005 invitation codes
+    // 5 Sub-Agents with BR-AG001 to BR-AG005 invitation codes
     const DEFAULT_CORES = [
-      { name: "SubAgent 1", email: "subagent1@trade.com",  invitationCode: "PB-AG001" },
-      { name: "SubAgent 2", email: "subagent2@trade2.com", invitationCode: "PB-AG002" },
-      { name: "SubAgent 3", email: "subagent3@trade3.com", invitationCode: "PB-AG003" },
-      { name: "SubAgent 4", email: "subagent4@trade4.com", invitationCode: "PB-AG004" },
-      { name: "SubAgent 5", email: "subagent5@trade5.com", invitationCode: "PB-AG005" },
+      { name: "SubAgent 1", email: "subagent1BR@trade.com",  password: "BRSub#1001", invitationCode: "BR-AG001" },
+      { name: "SubAgent 2", email: "subagent2BR@trade2.com", password: "BRSub#1002", invitationCode: "BR-AG002" },
+      { name: "SubAgent 3", email: "subagent3BR@trade3.com", password: "BRSub#1003", invitationCode: "BR-AG003" },
+      { name: "SubAgent 4", email: "subagent4BR@trade4.com", password: "BRSub#1004", invitationCode: "BR-AG004" },
+      { name: "SubAgent 5", email: "subagent5BR@trade5.com", password: "BRSub#1005", invitationCode: "BR-AG005" },
     ];
 
     for (const c of DEFAULT_CORES) {
+      const hash = await hashPassword(c.password, 12);
       const user = await db.user.create({
         data: {
           uid: generateUid(),
           name: c.name,
           email: c.email,
-          passwordHash: defaultHash,
+          passwordHash: hash,
           role: "CORE",
           mustChangePassword: true,
           accountStatus: "ACTIVE",
