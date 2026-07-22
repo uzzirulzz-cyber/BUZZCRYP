@@ -172,10 +172,10 @@ export function StorefrontPage() {
       </header>
 
       {/* ─── Hero ───────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden" style={{ background: "radial-gradient(circle at top, #1b2238 0%, #07090f 70%)", padding: "90px 0" }}>
+      <section className="relative overflow-hidden brock-hero-bg" style={{ padding: "90px 0" }}>
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute left-1/4 top-20 w-96 h-96 rounded-full blur-3xl" style={{ background: "rgba(245, 180, 0, 0.08)" }} />
-          <div className="absolute right-1/4 bottom-20 w-96 h-96 rounded-full blur-3xl" style={{ background: "rgba(0, 229, 255, 0.08)" }} />
+          <div className="absolute left-1/4 top-20 w-96 h-96 rounded-full blur-3xl" style={{ background: "rgba(0, 208, 255, 0.06)" }} />
+          <div className="absolute right-1/4 bottom-20 w-96 h-96 rounded-full blur-3xl" style={{ background: "rgba(91, 91, 245, 0.08)" }} />
         </div>
 
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6">

@@ -42,99 +42,100 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  /* BuzzCryp brand colors */
-  --color-brock-navy: #07090f;
-  --color-brock-navy-2: #10141d;
-  --color-brock-gold: #f5b400;
-  --color-brock-gold-light: #ffd54f;
-  --color-brock-blue: #00e5ff;
-  --color-brock-blue-light: #4fa9ff;
+  /* Colorlib Cryptocurrency theme colors */
+  --color-brock-navy: #0b0a1f;
+  --color-brock-navy-2: #131240;
+  --color-brock-gold: #00d0ff;
+  --color-brock-gold-light: #4de8ff;
+  --color-brock-blue: #5b5bf5;
+  --color-brock-blue-light: #7878ff;
   --color-brock-success: #00d26a;
   --color-brock-danger: #ff3d57;
 }
 
-/* ─── BuzzCryp Theme ────────────────────────────────────────────────────────── */
-/* Black background, gold highlights, neon cyan accents, green/red trading colors */
+/* ─── Colorlib Cryptocurrency Theme ─────────────────────────────────────────── */
+/* Dark navy/black bg, blue gradient accents, cyan highlights, Lato-style font */
 
 :root {
-  --radius: 1.125rem; /* 18px */
-  --bg: #07090f;
-  --bg-secondary: #10141d;
-  --card: #171c28;
-  --border-c: #2a3042;
+  --radius: 0.625rem;
+  --bg: #0b0a1f;
+  --bg-secondary: #131240;
+  --card: #16153a;
+  --border-c: #2a2a5a;
 
-  --background: #07090f;
+  --background: #0b0a1f;
   --foreground: #ffffff;
-  --card: #171c28;
+  --card: #16153a;
   --card-foreground: #ffffff;
-  --popover: #10141d;
+  --popover: #131240;
   --popover-foreground: #ffffff;
-  --primary: #f5b400;
-  --primary-foreground: #07090f;
-  --secondary: #10141d;
+  --primary: #00d0ff;
+  --primary-foreground: #0b0a1f;
+  --secondary: #1a1a40;
   --secondary-foreground: #ffffff;
-  --muted: #1b2232;
-  --muted-foreground: #b9c2d0;
-  --accent: #00e5ff;
-  --accent-foreground: #07090f;
+  --muted: #1e1e48;
+  --muted-foreground: #9999bb;
+  --accent: #5b5bf5;
+  --accent-foreground: #ffffff;
   --destructive: #ff3d57;
   --success: #00d26a;
-  --border: rgba(255, 255, 255, 0.08);
-  --input: #1b2232;
-  --ring: #00e5ff;
-  --chart-1: #f5b400;
-  --chart-2: #00e5ff;
+  --border: rgba(0, 208, 255, 0.12);
+  --input: rgba(255, 255, 255, 0.06);
+  --ring: #00d0ff;
+  --chart-1: #00d0ff;
+  --chart-2: #5b5bf5;
   --chart-3: #00d26a;
-  --chart-4: #ffd54f;
-  --chart-5: #b9c2d0;
-  --sidebar: #090c13;
+  --chart-4: #4de8ff;
+  --chart-5: #9999bb;
+  --sidebar: #080816;
   --sidebar-foreground: #ffffff;
-  --sidebar-primary: #f5b400;
-  --sidebar-primary-foreground: #07090f;
-  --sidebar-accent: #171c28;
+  --sidebar-primary: #00d0ff;
+  --sidebar-primary-foreground: #0b0a1f;
+  --sidebar-accent: #131240;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgba(255, 255, 255, 0.06);
-  --sidebar-ring: #00e5ff;
+  --sidebar-border: rgba(0, 208, 255, 0.08);
+  --sidebar-ring: #00d0ff;
 
-  --shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
-  --glow-gold: 0 0 20px rgba(245, 180, 0, 0.35);
-  --glow-blue: 0 0 20px rgba(0, 229, 255, 0.30);
-  --gradient: linear-gradient(135deg, #f5b400, #00e5ff);
+  --shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  --glow-cyan: 0 0 20px rgba(0, 208, 255, 0.3);
+  --glow-blue: 0 0 20px rgba(91, 91, 245, 0.3);
+  --gradient: linear-gradient(135deg, #00d0ff, #5b5bf5);
+  --gradient-dark: linear-gradient(180deg, #131240, #0b0a1f);
 }
 
 .dark {
-  --background: #07090f;
+  --background: #0b0a1f;
   --foreground: #ffffff;
-  --card: #171c28;
+  --card: #16153a;
   --card-foreground: #ffffff;
-  --popover: #10141d;
+  --popover: #131240;
   --popover-foreground: #ffffff;
-  --primary: #f5b400;
-  --primary-foreground: #07090f;
-  --secondary: #10141d;
+  --primary: #00d0ff;
+  --primary-foreground: #0b0a1f;
+  --secondary: #1a1a40;
   --secondary-foreground: #ffffff;
-  --muted: #1b2232;
-  --muted-foreground: #b9c2d0;
-  --accent: #00e5ff;
-  --accent-foreground: #07090f;
+  --muted: #1e1e48;
+  --muted-foreground: #9999bb;
+  --accent: #5b5bf5;
+  --accent-foreground: #ffffff;
   --destructive: #ff3d57;
   --success: #00d26a;
-  --border: rgba(255, 255, 255, 0.08);
-  --input: #1b2232;
-  --ring: #00e5ff;
-  --chart-1: #f5b400;
-  --chart-2: #00e5ff;
+  --border: rgba(0, 208, 255, 0.12);
+  --input: rgba(255, 255, 255, 0.06);
+  --ring: #00d0ff;
+  --chart-1: #00d0ff;
+  --chart-2: #5b5bf5;
   --chart-3: #00d26a;
-  --chart-4: #ffd54f;
-  --chart-5: #b9c2d0;
-  --sidebar: #090c13;
+  --chart-4: #4de8ff;
+  --chart-5: #9999bb;
+  --sidebar: #080816;
   --sidebar-foreground: #ffffff;
-  --sidebar-primary: #f5b400;
-  --sidebar-primary-foreground: #07090f;
-  --sidebar-accent: #171c28;
+  --sidebar-primary: #00d0ff;
+  --sidebar-primary-foreground: #0b0a1f;
+  --sidebar-accent: #131240;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgba(255, 255, 255, 0.06);
-  --sidebar-ring: #00e5ff;
+  --sidebar-border: rgba(0, 208, 255, 0.08);
+  --sidebar-ring: #00d0ff;
 }
 
 @layer base {
@@ -144,50 +145,50 @@
   body {
     @apply bg-background text-foreground;
     background-image:
-      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(27, 34, 56, 0.6), transparent),
-      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(245, 180, 0, 0.05), transparent);
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(91, 91, 245, 0.15), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(0, 208, 255, 0.05), transparent);
     background-attachment: fixed;
   }
 }
 
-/* ─── Scrollbar (gradient gold → cyan) ──────────────────────────────────────── */
+/* ─── Scrollbar ─────────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.02);
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #f5b400, #00e5ff);
+  background: linear-gradient(135deg, #00d0ff, #5b5bf5);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #ffd54f, #00e5ff);
+  background: linear-gradient(135deg, #4de8ff, #7878ff);
 }
 
-/* ─── BuzzCryp utility classes ──────────────────────────────────────────────── */
+/* ─── Colorlib Crypto utility classes ───────────────────────────────────────── */
 
-/* Gold→Cyan gradient (primary buttons, accents) */
+/* Cyan→Blue gradient (primary buttons, accents) */
 .brock-gradient-gold {
-  background: linear-gradient(135deg, #f5b400, #00e5ff);
+  background: linear-gradient(135deg, #00d0ff, #5b5bf5);
 }
 .brock-gradient-blue {
-  background: linear-gradient(135deg, #00e5ff 0%, #4fa9ff 100%);
+  background: linear-gradient(135deg, #5b5bf5 0%, #7878ff 100%);
 }
 
-/* Gold gradient text */
+/* Cyan gradient text */
 .brock-text-gold {
-  background: linear-gradient(135deg, #ffd54f 0%, #f5b400 100%);
+  background: linear-gradient(135deg, #4de8ff 0%, #00d0ff 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
 }
 
-/* Cyan gradient text */
+/* Blue gradient text */
 .brock-text-cyan {
-  background: linear-gradient(135deg, #00e5ff 0%, #4fa9ff 100%);
+  background: linear-gradient(135deg, #7878ff 0%, #5b5bf5 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -196,44 +197,45 @@
 
 /* Glow effects */
 .brock-glow-gold {
-  box-shadow: 0 0 20px rgba(245, 180, 0, 0.35);
+  box-shadow: 0 0 20px rgba(0, 208, 255, 0.3);
 }
 .brock-glow-blue {
-  box-shadow: 0 0 20px rgba(0, 229, 255, 0.30);
+  box-shadow: 0 0 20px rgba(91, 91, 245, 0.3);
 }
 
-/* Premium card with hover lift */
+/* Premium card */
 .brock-card {
-  background: #171c28;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 18px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+  background: #16153a;
+  border: 1px solid rgba(0, 208, 255, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
   transition: all 0.35s ease;
 }
 .brock-card:hover {
-  transform: translateY(-8px);
-  border-color: #f5b400;
+  transform: translateY(-6px);
+  border-color: rgba(0, 208, 255, 0.3);
+  box-shadow: 0 15px 50px rgba(0, 208, 255, 0.1);
 }
 
 /* Glassmorphism navbar */
 .brock-nav {
-  background: rgba(12, 15, 22, 0.9);
+  background: rgba(11, 10, 31, 0.92);
   backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(0, 208, 255, 0.08);
 }
 
 /* Trade input styling */
 .brock-input {
-  background: #1b2232;
+  background: #1a1a40;
   color: #ffffff;
-  border: 1px solid #2d364b;
-  border-radius: 12px;
+  border: 1px solid #2a2a5a;
+  border-radius: 10px;
   padding: 14px;
 }
 .brock-input:focus {
   outline: none;
-  border-color: #00e5ff;
-  box-shadow: 0 0 20px rgba(0, 229, 255, 0.30);
+  border-color: #00d0ff;
+  box-shadow: 0 0 15px rgba(0, 208, 255, 0.2);
 }
 
 /* Buy UP (green) / Buy DOWN (red) buttons */
@@ -241,78 +243,97 @@
   background: #00d26a;
   color: #ffffff;
   border: none;
-  border-radius: 14px;
+  border-radius: 10px;
   font-weight: 700;
-  box-shadow: 0 0 15px rgba(0, 210, 106, 0.3);
+  box-shadow: 0 0 12px rgba(0, 210, 106, 0.25);
   transition: all 0.3s ease;
 }
 .brock-buy-up:hover {
   transform: translateY(-2px);
-  box-shadow: 0 0 25px rgba(0, 210, 106, 0.5);
+  box-shadow: 0 0 20px rgba(0, 210, 106, 0.4);
 }
 .brock-buy-down {
   background: #ff3d57;
   color: #ffffff;
   border: none;
-  border-radius: 14px;
+  border-radius: 10px;
   font-weight: 700;
-  box-shadow: 0 0 15px rgba(255, 61, 87, 0.3);
+  box-shadow: 0 0 12px rgba(255, 61, 87, 0.25);
   transition: all 0.3s ease;
 }
 .brock-buy-down:hover {
   transform: translateY(-2px);
-  box-shadow: 0 0 25px rgba(255, 61, 87, 0.5);
+  box-shadow: 0 0 20px rgba(255, 61, 87, 0.4);
 }
 
-/* Stat card with gradient background */
+/* Stat card */
 .brock-stat-card {
-  background: linear-gradient(180deg, #181f2d, #12161f);
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, #16153a, #0e0d28);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 208, 255, 0.08);
 }
 
 /* Price colors */
-.price-up {
-  color: #00d26a;
-}
-.price-down {
-  color: #ff3d57;
-}
+.price-up { color: #00d26a; }
+.price-down { color: #ff3d57; }
 
 /* Glow animation */
 @keyframes glow {
-  0% { box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); }
-  50% { box-shadow: 0 0 25px rgba(245, 180, 0, 0.5); }
-  100% { box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); }
+  0% { box-shadow: 0 0 10px rgba(0, 208, 255, 0.15); }
+  50% { box-shadow: 0 0 25px rgba(91, 91, 245, 0.35); }
+  100% { box-shadow: 0 0 10px rgba(0, 208, 255, 0.15); }
 }
 .brock-glow-animate {
   animation: glow 3s infinite;
 }
 
-/* Primary button with gradient + glow + hover lift */
+/* Primary button (gradient + glow + hover lift) */
 .brock-btn-primary {
-  background: linear-gradient(135deg, #f5b400, #00e5ff);
+  background: linear-gradient(135deg, #00d0ff, #5b5bf5);
   color: #ffffff;
   border: none;
   border-radius: 40px;
   font-weight: 700;
-  box-shadow: 0 0 20px rgba(245, 180, 0, 0.35);
+  box-shadow: 0 0 20px rgba(0, 208, 255, 0.25);
   transition: all 0.3s ease;
 }
 .brock-btn-primary:hover {
   transform: translateY(-3px);
-  box-shadow: 0 0 30px rgba(0, 229, 255, 0.5);
+  box-shadow: 0 0 30px rgba(91, 91, 245, 0.4);
 }
 
 /* Outline button (cyan border) */
 .brock-btn-outline {
-  border: 2px solid #00e5ff;
-  color: #00e5ff;
+  border: 2px solid #00d0ff;
+  color: #00d0ff;
   background: transparent;
   border-radius: 40px;
   transition: all 0.3s ease;
 }
 .brock-btn-outline:hover {
-  background: #00e5ff;
-  color: #000000;
+  background: #00d0ff;
+  color: #0b0a1f;
+}
+
+/* Hero gradient background (Colorlib style) */
+.brock-hero-bg {
+  background: linear-gradient(180deg, #131240 0%, #0b0a1f 70%);
+}
+
+/* Section spacing (Colorlib style) */
+.brock-section {
+  padding: 80px 0;
+}
+
+/* Feature icon circle */
+.brock-feature-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(0, 208, 255, 0.1), rgba(91, 91, 245, 0.1));
+  border: 1px solid rgba(0, 208, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
 }

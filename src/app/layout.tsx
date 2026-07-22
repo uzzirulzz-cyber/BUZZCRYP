@@ -15,10 +15,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BuzzCryp — Trade Smarter. Grow Faster.",
+  title: "BuzzCryp — Cryptocurrency Trading Platform",
   description:
-    "BuzzCryp — Secure crypto trading platform. Trade smarter, grow faster. Role-based access, multi-tenant isolation, full audit trails.",
-  keywords: ["BuzzCryp", "crypto", "trading", "exchange", "wallet", "secure", "RBAC"],
+    "BuzzCryp — Invest in Bitcoin. Trade smarter, grow faster. Secure crypto trading platform with role-based access, multi-tenant isolation, and full audit trails.",
+  keywords: ["BuzzCryp", "cryptocurrency", "bitcoin", "trading", "exchange", "wallet", "secure"],
   authors: [{ name: "BuzzCryp" }],
   icons: {
     icon: "/favicon.ico",

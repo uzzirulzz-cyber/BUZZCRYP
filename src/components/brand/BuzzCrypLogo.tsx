@@ -23,12 +23,12 @@ export function BuzzCrypLogo({ size = "md" }: { size?: LogoSize }) {
       <svg viewBox="0 0 100 100" className="w-full h-full">
         <defs>
           <linearGradient id={`${gid}-gold`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#ffd54f" />
-            <stop offset="100%" stopColor="#f5b400" />
+            <stop offset="0%" stopColor="#4de8ff" />
+            <stop offset="100%" stopColor="#00d0ff" />
           </linearGradient>
           <linearGradient id={`${gid}-cyan`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#00e5ff" />
-            <stop offset="100%" stopColor="#00b8d4" />
+            <stop offset="0%" stopColor="#7878ff" />
+            <stop offset="100%" stopColor="#5b5bf5" />
           </linearGradient>
         </defs>
         {/* Thin gold arc curving above B and C */}
